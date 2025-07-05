@@ -135,6 +135,8 @@
                         </div>
                     </div>
 
+                    <button onclick="switchToSepolia()" class="btn btn-warning">Switch to Sepolia</button>
+
                     <!-- Connection Status -->
                     <div class="connection-status" id="connection-status" style="margin-bottom: 2rem;">
                         <div class="status-indicator" id="status-indicator">
@@ -350,83 +352,135 @@
 
         // Test contracts function
         async function testContracts() {
-            updateDebugInfo('🧪 Testing contract connections...');
-            
             if (!window.YieldGuard.contracts.usdcManager) {
-                updateDebugInfo('❌ USDCManager not initialized');
+                updateDebugInfo('❌ Contracts not initialized');
                 return;
             }
 
             try {
-                // Test simple calls first
-                updateDebugInfo('📞 Testing contract address...');
-                const address = window.YieldGuard.contracts.usdcManager.address || await window.YieldGuard.contracts.usdcManager.getAddress();
-                updateDebugInfo(`✅ USDCManager address: ${address}`);
+                updateDebugInfo('🧪 Testing contract functions...');
 
-                // Test if contract exists on chain
-                updateDebugInfo('📞 Testing contract code...');
-                const code = await window.YieldGuard.provider.getCode(address);
-                if (code === '0x') {
-                    updateDebugInfo('❌ No contract code found at address - contract not deployed?');
-                    return;
-                }
-                updateDebugInfo(`✅ Contract code found: ${code.length} bytes`);
-
-                // Check network
-                const network = await window.YieldGuard.provider.getNetwork();
-                updateDebugInfo(`🌐 Connected to network: ${network.name} (${network.chainId})`);
-
-                // Test individual functions with detailed error reporting
-                updateDebugInfo('📞 Testing getPoolStats...');
-                try {
-                    const poolStats = await window.YieldGuard.contracts.usdcManager.getPoolStats();
-                    updateDebugInfo(`✅ Pool stats: totalBalance=${poolStats[0]}, totalClaims=${poolStats[1]}, totalPremiums=${poolStats[2]}`);
-                } catch (error) {
-                    updateDebugInfo(`❌ getPoolStats failed: ${error.message}`);
-                    if (error.data) {
-                        updateDebugInfo(`   Error data: ${error.data}`);
+                // Test USDCManager - use actual functions that exist
+                if (window.YieldGuard.contracts.usdcManager) {
+                    updateDebugInfo('📞 Testing USDCManager...');
+                    
+                    try {
+                        // This should work - basic pool stats
+                        const poolStats = await window.YieldGuard.contracts.usdcManager.getPoolStats();
+                        updateDebugInfo(`✅ Pool stats: [${poolStats.toString()}]`);
+                    } catch (error) {
+                        updateDebugInfo(`❌ getPoolStats failed: ${error.message}`);
+                        updateDebugInfo(`   Contract may need initialization or state setup`);
                     }
-                    if (error.code) {
-                        updateDebugInfo(`   Error code: ${error.code}`);
+
+                    try {
+                        // Test user deposits
+                        const userDeposits = await window.YieldGuard.contracts.usdcManager.userDeposits(window.YieldGuard.userAddress);
+                        updateDebugInfo(`✅ User deposits: ${userDeposits.toString()}`);
+                    } catch (error) {
+                        updateDebugInfo(`❌ userDeposits failed: ${error.message}`);
+                    }
+
+                    try {
+                        // Test USDC token address
+                        const usdcToken = await window.YieldGuard.contracts.usdcManager.usdcToken();
+                        updateDebugInfo(`✅ USDC token: ${usdcToken}`);
+                    } catch (error) {
+                        updateDebugInfo(`❌ usdcToken failed: ${error.message}`);
+                    }
+
+                    try {
+                        // Test domain constants
+                        const ethDomain = await window.YieldGuard.contracts.usdcManager.ETHEREUM_DOMAIN();
+                        const arbDomain = await window.YieldGuard.contracts.usdcManager.ARBITRUM_DOMAIN();
+                        const baseDomain = await window.YieldGuard.contracts.usdcManager.BASE_DOMAIN();
+                        updateDebugInfo(`✅ Domains - ETH: ${ethDomain}, ARB: ${arbDomain}, BASE: ${baseDomain}`);
+                    } catch (error) {
+                        updateDebugInfo(`❌ Domain constants failed: ${error.message}`);
                     }
                 }
 
-                updateDebugInfo('📞 Testing userDeposits...');
-                try {
-                    const userDeposits = await window.YieldGuard.contracts.usdcManager.userDeposits(window.YieldGuard.userAddress);
-                    updateDebugInfo(`✅ User deposits: ${userDeposits.toString()}`);
-                } catch (error) {
-                    updateDebugInfo(`❌ userDeposits failed: ${error.message}`);
-                }
-
-                updateDebugInfo('📞 Testing usdcToken...');
-                try {
-                    const usdcToken = await window.YieldGuard.contracts.usdcManager.usdcToken();
-                    updateDebugInfo(`✅ USDC token address: ${usdcToken}`);
-                } catch (error) {
-                    updateDebugInfo(`❌ usdcToken failed: ${error.message}`);
-                }
-
-                // Test other contracts if available
+                // Test SimpleCrossChainInsurance - use functions that actually exist
                 if (window.YieldGuard.contracts.crossChainInsurance) {
                     updateDebugInfo('📞 Testing SimpleCrossChainInsurance...');
+                    
                     try {
-                        const userCoverage = await window.YieldGuard.contracts.crossChainInsurance.getUserCoverage(window.YieldGuard.userAddress);
-                        updateDebugInfo(`✅ User coverage: ${userCoverage.toString()}`);
+                        // Test priceMonitor address - this should work
+                        const priceMonitorAddr = await window.YieldGuard.contracts.crossChainInsurance.priceMonitor();
+                        updateDebugInfo(`✅ Price monitor address: ${priceMonitorAddr}`);
                     } catch (error) {
-                        updateDebugInfo(`❌ getUserCoverage failed: ${error.message}`);
+                        updateDebugInfo(`❌ priceMonitor failed: ${error.message}`);
+                    }
+
+                    try {
+                        // Test usdcManager address
+                        const usdcManagerAddr = await window.YieldGuard.contracts.crossChainInsurance.usdcManager();
+                        updateDebugInfo(`✅ USDC manager address: ${usdcManagerAddr}`);
+                    } catch (error) {
+                        updateDebugInfo(`❌ usdcManager failed: ${error.message}`);
+                    }
+
+                    try {
+                        // Test getSupportedChains - this should work
+                        const supportedChains = await window.YieldGuard.contracts.crossChainInsurance.getSupportedChains();
+                        updateDebugInfo(`✅ Supported chains: [${supportedChains.toString()}]`);
+                    } catch (error) {
+                        updateDebugInfo(`❌ getSupportedChains failed: ${error.message}`);
+                    }
+
+                    try {
+                        // Test user claim count
+                        const claimCount = await window.YieldGuard.contracts.crossChainInsurance.userClaimCount(window.YieldGuard.userAddress);
+                        updateDebugInfo(`✅ User claim count: ${claimCount.toString()}`);
+                    } catch (error) {
+                        updateDebugInfo(`❌ userClaimCount failed: ${error.message}`);
+                    }
+
+                    try {
+                        // Test LayerZero endpoint
+                        const lzEndpoint = await window.YieldGuard.contracts.crossChainInsurance.layerZeroEndpoint();
+                        updateDebugInfo(`✅ LayerZero endpoint: ${lzEndpoint}`);
+                    } catch (error) {
+                        updateDebugInfo(`❌ layerZeroEndpoint failed: ${error.message}`);
                     }
                 }
 
+                // Test SimplePriceMonitor - use functions that actually exist
                 if (window.YieldGuard.contracts.priceMonitor) {
                     updateDebugInfo('📞 Testing SimplePriceMonitor...');
+                    
                     try {
-                        const protocolCount = await window.YieldGuard.contracts.priceMonitor.getProtocolCount();
-                        updateDebugInfo(`✅ Protocol count: ${protocolCount.toString()}`);
+                        // Test owner - this should work
+                        const owner = await window.YieldGuard.contracts.priceMonitor.owner();
+                        updateDebugInfo(`✅ Contract owner: ${owner}`);
                     } catch (error) {
-                        updateDebugInfo(`❌ getProtocolCount failed: ${error.message}`);
+                        updateDebugInfo(`❌ owner failed: ${error.message}`);
+                    }
+
+                    try {
+                        // Test getProtocolAggregator with a sample protocol
+                        const ethProtocolId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ETH"));
+                        const aggregator = await window.YieldGuard.contracts.priceMonitor.getProtocolAggregator(ethProtocolId);
+                        updateDebugInfo(`✅ ETH protocol aggregator: ${aggregator}`);
+                        
+                        if (aggregator === "0x0000000000000000000000000000000000000000") {
+                            updateDebugInfo(`   No aggregator set for ETH protocol (expected on fresh deployment)`);
+                        }
+                    } catch (error) {
+                        updateDebugInfo(`❌ getProtocolAggregator failed: ${error.message}`);
+                    }
+
+                    try {
+                        // Test protocol status
+                        const ethProtocolId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ETH"));
+                        const status = await window.YieldGuard.contracts.priceMonitor.protocolStatus(ethProtocolId);
+                        updateDebugInfo(`✅ ETH protocol status: ${status}`);
+                    } catch (error) {
+                        updateDebugInfo(`❌ protocolStatus failed: ${error.message}`);
                     }
                 }
+
+                updateDebugInfo('✅ Contract testing complete');
 
             } catch (error) {
                 updateDebugInfo(`❌ Contract test failed: ${error.message}`);
@@ -620,16 +674,20 @@
             try {
                 updateDebugInfo('📊 Updating dashboard data...');
 
-                // Test individual contract calls with detailed error handling
-                let poolStats, userDeposits, userCoverage;
+                // Initialize default values
+                let poolStats = [0, 0, 0]; // [totalBalance, totalClaims, totalPremiums]
+                let userDeposits = ethers.BigNumber.from(0);
+                let userCoverage = ethers.BigNumber.from(0);
 
+                // Test USDCManager functions
                 try {
                     updateDebugInfo('📞 Calling getPoolStats...');
                     poolStats = await window.YieldGuard.contracts.usdcManager.getPoolStats();
                     updateDebugInfo(`✅ Pool stats received: ${poolStats.toString()}`);
                 } catch (error) {
                     updateDebugInfo(`❌ getPoolStats failed: ${error.message}`);
-                    throw error;
+                    updateDebugInfo(`   Using default values. Contract may need initialization.`);
+                    // Continue with default values instead of throwing
                 }
 
                 try {
@@ -641,36 +699,249 @@
                     userDeposits = ethers.BigNumber.from(0);
                 }
 
+                // Try to get user coverage - but this function doesn't exist in SimpleCrossChainInsurance
+                // Instead, let's try to get coverage from USDCManager which has getUserCoverage(address, bytes32)
                 try {
-                    updateDebugInfo('📞 Calling getUserCoverage...');
-                    userCoverage = await window.YieldGuard.contracts.crossChainInsurance.getUserCoverage(window.YieldGuard.userAddress);
-                    updateDebugInfo(`✅ User coverage: ${userCoverage.toString()}`);
+                    // Use a default protocol ID (ETH) to check coverage
+                    const ethProtocolId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ETH"));
+                    updateDebugInfo('📞 Calling USDCManager.getUserCoverage...');
+                    
+                    // This should work - getUserCoverage exists in USDCManager
+                    const coverage = await window.YieldGuard.contracts.usdcManager.getUserCoverage(
+                        window.YieldGuard.userAddress, 
+                        ethProtocolId
+                    );
+                    userCoverage = coverage.coverageAmount || ethers.BigNumber.from(0);
+                    updateDebugInfo(`✅ User coverage from USDCManager: ${userCoverage.toString()}`);
                 } catch (error) {
                     updateDebugInfo(`❌ getUserCoverage failed: ${error.message}`);
+                    updateDebugInfo(`   Note: This is expected if no coverage has been purchased yet`);
                     userCoverage = ethers.BigNumber.from(0);
                 }
 
-                // Update UI elements
-                const totalPortfolio = ethers.utils.formatUnits(userDeposits, 6); // USDC has 6 decimals
-                const insuredValue = ethers.utils.formatUnits(userCoverage, 6);
-                
-                document.getElementById('total-portfolio').textContent = `$${parseFloat(totalPortfolio).toFixed(2)}`;
-                document.getElementById('insured-value').textContent = `$${parseFloat(insuredValue).toFixed(2)}`;
-                
-                // Calculate coverage percentage
-                const coveragePercent = userDeposits.gt(0) ? (userCoverage.mul(100).div(userDeposits)).toNumber() : 0;
-                document.getElementById('coverage-percent').textContent = `${coveragePercent}% covered`;
+                // Update UI elements with proper error handling
+                try {
+                    // Update portfolio value (from user deposits)
+                    const totalPortfolio = ethers.utils.formatUnits(userDeposits, 6); // USDC has 6 decimals
+                    const insuredValue = ethers.utils.formatUnits(userCoverage, 6);
+                    
+                    // Update main dashboard values
+                    const totalPortfolioElement = document.getElementById('total-portfolio');
+                    const insuredValueElement = document.getElementById('insured-value');
+                    const coveragePercentElement = document.getElementById('coverage-percent');
+                    const usdcBalanceElement = document.getElementById('usdc-balance');
 
-                // Update USDC balance in header
-                document.getElementById('usdc-balance').textContent = `$${parseFloat(totalPortfolio).toFixed(2)}`;
+                    if (totalPortfolioElement) {
+                        totalPortfolioElement.textContent = `$${parseFloat(totalPortfolio).toFixed(2)}`;
+                    }
 
-                console.log('✅ Dashboard data updated');
-                updateDebugInfo('✅ Dashboard data updated successfully');
+                    if (insuredValueElement) {
+                        insuredValueElement.textContent = `$${parseFloat(insuredValue).toFixed(2)}`;
+                    }
+
+                    if (coveragePercentElement) {
+                        // Calculate coverage percentage
+                        const coveragePercent = userDeposits.gt(0) ? 
+                            (userCoverage.mul(100).div(userDeposits)).toNumber() : 0;
+                        coveragePercentElement.textContent = `${coveragePercent}% covered`;
+                    }
+
+                    // Update USDC balance in header
+                    if (usdcBalanceElement) {
+                        usdcBalanceElement.textContent = `$${parseFloat(totalPortfolio).toFixed(2)}`;
+                    }
+
+                    // Update pool stats if elements exist
+                    const totalBalanceElement = document.getElementById('total-balance');
+                    const totalClaimsElement = document.getElementById('total-claims');
+                    const totalPremiumsElement = document.getElementById('total-premiums');
+
+                    if (totalBalanceElement) {
+                        totalBalanceElement.textContent = `${ethers.utils.formatUnits(poolStats[0] || 0, 6)} USDC`;
+                    }
+
+                    if (totalClaimsElement) {
+                        totalClaimsElement.textContent = `${ethers.utils.formatUnits(poolStats[1] || 0, 6)} USDC`;
+                    }
+
+                    if (totalPremiumsElement) {
+                        totalPremiumsElement.textContent = `${ethers.utils.formatUnits(poolStats[2] || 0, 6)} USDC`;
+                    }
+
+                    console.log('✅ Dashboard data updated');
+                    updateDebugInfo('✅ Dashboard data updated successfully');
+                    
+                    // Show success message only if we got some real data
+                    if (userDeposits.gt(0) || (poolStats[0] && ethers.BigNumber.from(poolStats[0]).gt(0))) {
+                        showNotification('Dashboard updated with latest data', 'success');
+                    } else {
+                        showNotification('Dashboard updated (no deposits found)', 'info');
+                    }
+
+                } catch (uiError) {
+                    updateDebugInfo(`❌ UI update failed: ${uiError.message}`);
+                    console.error('UI update error:', uiError);
+                }
+
             } catch (error) {
                 console.error('❌ Failed to update dashboard data:', error);
                 updateDebugInfo(`❌ Dashboard update failed: ${error.message}`);
                 showNotification('Failed to load portfolio data. Check console for details.', 'error');
+                
+                // Set fallback values in UI
+                try {
+                    const elements = [
+                        'total-portfolio',
+                        'insured-value', 
+                        'usdc-balance',
+                        'total-balance',
+                        'total-claims',
+                        'total-premiums'
+                    ];
+                    
+                    elements.forEach(id => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            element.textContent = 'N/A';
+                        }
+                    });
+
+                    const coverageElement = document.getElementById('coverage-percent');
+                    if (coverageElement) {
+                        coverageElement.textContent = '0% covered';
+                    }
+                } catch (fallbackError) {
+                    console.error('Even fallback UI update failed:', fallbackError);
+                }
             }
+        }
+
+        // Add this function to automatically switch to Sepolia
+        async function switchToSepolia() {
+            try {
+                updateDebugInfo('🔄 Attempting to switch to Sepolia...');
+                
+                // Try to switch to Sepolia
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0xaa36a7' }], // 11155111 in hex
+                });
+                
+                updateDebugInfo('✅ Successfully switched to Sepolia!');
+                showNotification('Switched to Sepolia network', 'success');
+                
+                // Reinitialize everything
+                setTimeout(async () => {
+                    await initializeContracts();
+                    await updateDashboardData();
+                }, 1000);
+                
+            } catch (switchError) {
+                updateDebugInfo(`❌ Switch failed: ${switchError.message}`);
+                
+                // If the network doesn't exist, add it
+                if (switchError.code === 4902) {
+                    try {
+                        updateDebugInfo('➕ Adding Sepolia network...');
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: '0xaa36a7',
+                                chainName: 'Sepolia test network',
+                                nativeCurrency: {
+                                    name: 'ETH',
+                                    symbol: 'ETH',
+                                    decimals: 18,
+                                },
+                                rpcUrls: ['https://sepolia.infura.io/v3/'],
+                                blockExplorerUrls: ['https://sepolia.etherscan.io'],
+                            }],
+                        });
+                        
+                        updateDebugInfo('✅ Sepolia network added and switched!');
+                        showNotification('Added and switched to Sepolia', 'success');
+                        
+                        // Reinitialize everything
+                        setTimeout(async () => {
+                            await initializeContracts();
+                            await updateDashboardData();
+                        }, 1000);
+                        
+                    } catch (addError) {
+                        updateDebugInfo(`❌ Failed to add network: ${addError.message}`);
+                        showNotification('Please manually switch to Sepolia in MetaMask', 'error');
+                    }
+                } else {
+                    showNotification('Please manually switch to Sepolia in MetaMask', 'error');
+                }
+            }
+        }
+
+        // Add this function to your index.html to debug network issues
+        async function debugNetworkInfo() {
+            try {
+                updateDebugInfo('🔍 Debugging network information...');
+                
+                if (!window.YieldGuard.provider) {
+                    updateDebugInfo('❌ No provider available');
+                    return;
+                }
+
+                // Get network info from provider
+                const network = await window.YieldGuard.provider.getNetwork();
+                updateDebugInfo(`📡 Provider network: ${network.name} (chainId: ${network.chainId})`);
+                
+                // Get network from MetaMask directly
+                const metamaskChainId = await window.ethereum.request({ method: 'eth_chainId' });
+                updateDebugInfo(`🦊 MetaMask chainId: ${metamaskChainId} (decimal: ${parseInt(metamaskChainId, 16)})`);
+                
+                // Check if they match
+                const expectedChainId = 11155111; // Sepolia
+                const actualChainId = parseInt(metamaskChainId, 16);
+                
+                if (actualChainId === expectedChainId) {
+                    updateDebugInfo('✅ Network matches Sepolia!');
+                } else {
+                    updateDebugInfo(`❌ Network mismatch! Expected: ${expectedChainId}, Actual: ${actualChainId}`);
+                    updateDebugInfo(`   Expected: Sepolia (11155111)`);
+                    updateDebugInfo(`   Actual: ${getNetworkName(actualChainId)} (${actualChainId})`);
+                }
+                
+                // Test a simple contract call with more details
+                if (window.YieldGuard.contracts.usdcManager) {
+                    updateDebugInfo('🧪 Testing simple contract call...');
+                    try {
+                        const code = await window.YieldGuard.provider.getCode(window.YieldGuard.contracts.usdcManager.address);
+                        updateDebugInfo(`✅ Contract code exists: ${code.length} characters`);
+                        
+                        // Try the call with explicit gas
+                        const result = await window.YieldGuard.contracts.usdcManager.usdcToken({
+                            gasLimit: 100000
+                        });
+                        updateDebugInfo(`✅ usdcToken() call successful: ${result}`);
+                        
+                    } catch (error) {
+                        updateDebugInfo(`❌ Contract call failed: ${error.message}`);
+                        if (error.message.includes('network')) {
+                            updateDebugInfo('   This looks like a network issue!');
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                updateDebugInfo(`❌ Network debug failed: ${error.message}`);
+            }
+        }
+
+        function getNetworkName(chainId) {
+            const networks = {
+                1: 'Ethereum Mainnet',
+                11155111: 'Sepolia',
+                421614: 'Arbitrum Sepolia', 
+                84532: 'Base Sepolia',
+                1337: 'Hardhat Local'
+            };
+            return networks[chainId] || 'Unknown Network';
         }
 
         // Show notification function

@@ -55,24 +55,17 @@ async function main() {
       
       console.log(`✅ Contract connected successfully`);
       
-      // Test specific functions
+      // Test ACTUAL functions that exist in contracts
       if (name === 'usdcManager') {
         console.log('🧪 Testing USDCManager functions:');
         
         try {
-          // Test getPoolStats
+          // Test getPoolStats (if it fails, the contract state might not be initialized)
           const poolStats = await contract.getPoolStats();
           console.log(`✅ getPoolStats(): ${poolStats.toString()}`);
         } catch (error) {
           console.log(`❌ getPoolStats() failed: ${error.message}`);
-          
-          // Check if the function exists in the ABI
-          const functionExists = contract.interface.fragments.find(f => f.name === 'getPoolStats');
-          if (functionExists) {
-            console.log(`✅ Function exists in ABI: ${functionExists.format()}`);
-          } else {
-            console.log(`❌ Function 'getPoolStats' not found in ABI`);
-          }
+          console.log(`   This might indicate uninitialized contract state`);
         }
         
         try {
@@ -90,23 +83,59 @@ async function main() {
         } catch (error) {
           console.log(`❌ usdcToken() failed: ${error.message}`);
         }
+
+        try {
+          // Test domain constants
+          const ethDomain = await contract.ETHEREUM_DOMAIN();
+          const arbDomain = await contract.ARBITRUM_DOMAIN();
+          const baseDomain = await contract.BASE_DOMAIN();
+          console.log(`✅ Domain constants - ETH: ${ethDomain}, ARB: ${arbDomain}, BASE: ${baseDomain}`);
+        } catch (error) {
+          console.log(`❌ Domain constants failed: ${error.message}`);
+        }
       }
       
       if (name === 'crossChainInsurance') {
         console.log('🧪 Testing SimpleCrossChainInsurance functions:');
         
         try {
-          const userCoverage = await contract.getUserCoverage(signer.address);
-          console.log(`✅ getUserCoverage(${signer.address}): ${userCoverage.toString()}`);
-        } catch (error) {
-          console.log(`❌ getUserCoverage() failed: ${error.message}`);
-        }
-        
-        try {
+          // Test priceMonitor address (this should work)
           const priceMonitorAddr = await contract.priceMonitor();
           console.log(`✅ priceMonitor(): ${priceMonitorAddr}`);
         } catch (error) {
           console.log(`❌ priceMonitor() failed: ${error.message}`);
+        }
+
+        try {
+          // Test usdcManager address
+          const usdcManagerAddr = await contract.usdcManager();
+          console.log(`✅ usdcManager(): ${usdcManagerAddr}`);
+        } catch (error) {
+          console.log(`❌ usdcManager() failed: ${error.message}`);
+        }
+
+        try {
+          // Test layerZeroEndpoint
+          const lzEndpoint = await contract.layerZeroEndpoint();
+          console.log(`✅ layerZeroEndpoint(): ${lzEndpoint}`);
+        } catch (error) {
+          console.log(`❌ layerZeroEndpoint() failed: ${error.message}`);
+        }
+
+        try {
+          // Test getSupportedChains (this should work)
+          const supportedChains = await contract.getSupportedChains();
+          console.log(`✅ getSupportedChains(): ${supportedChains.toString()}`);
+        } catch (error) {
+          console.log(`❌ getSupportedChains() failed: ${error.message}`);
+        }
+
+        try {
+          // Test userClaimCount
+          const claimCount = await contract.userClaimCount(signer.address);
+          console.log(`✅ userClaimCount(${signer.address}): ${claimCount.toString()}`);
+        } catch (error) {
+          console.log(`❌ userClaimCount() failed: ${error.message}`);
         }
       }
       
@@ -114,10 +143,29 @@ async function main() {
         console.log('🧪 Testing SimplePriceMonitor functions:');
         
         try {
-          const protocolCount = await contract.getProtocolCount();
-          console.log(`✅ getProtocolCount(): ${protocolCount.toString()}`);
+          // Test owner (should work)
+          const owner = await contract.owner();
+          console.log(`✅ owner(): ${owner}`);
         } catch (error) {
-          console.log(`❌ getProtocolCount() failed: ${error.message}`);
+          console.log(`❌ owner() failed: ${error.message}`);
+        }
+
+        try {
+          // Test getProtocolAggregator with a dummy protocol ID
+          const dummyProtocolId = hre.ethers.keccak256(hre.ethers.toUtf8Bytes("ETH"));
+          const aggregator = await contract.getProtocolAggregator(dummyProtocolId);
+          console.log(`✅ getProtocolAggregator(ETH): ${aggregator}`);
+        } catch (error) {
+          console.log(`❌ getProtocolAggregator() failed: ${error.message}`);
+        }
+
+        try {
+          // Test protocolStatus with a dummy protocol ID
+          const dummyProtocolId = hre.ethers.keccak256(hre.ethers.toUtf8Bytes("ETH"));
+          const status = await contract.protocolStatus(dummyProtocolId);
+          console.log(`✅ protocolStatus(ETH): ${status}`);
+        } catch (error) {
+          console.log(`❌ protocolStatus() failed: ${error.message}`);
         }
       }
       
@@ -127,6 +175,16 @@ async function main() {
   }
   
   console.log('\n🎯 Debug complete!');
+  console.log('\n📋 Summary of ACTUAL available functions:');
+  console.log('SimplePriceMonitor:');
+  console.log('  ✅ owner(), addProtocol(), getLatestPrice(), checkProtocolHealth(), getProtocolAggregator()');
+  console.log('  ❌ getProtocolCount() - DOES NOT EXIST');
+  console.log('\nSimpleCrossChainInsurance:');
+  console.log('  ✅ priceMonitor(), usdcManager(), getSupportedChains(), getClaim(), userClaimCount()');
+  console.log('  ❌ getUserCoverage() - DOES NOT EXIST');
+  console.log('\nUSDCManager:');
+  console.log('  ✅ getPoolStats(), userDeposits(), usdcToken(), domain constants');
+  console.log('  ⚠️ getPoolStats() may fail due to uninitialized state');
 }
 
 main()
