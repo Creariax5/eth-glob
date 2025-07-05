@@ -54,10 +54,12 @@ async function main() {
     throw new Error(`Chain ${chainName} not supported`);
   }
   
+  // FIXED: Added the missing 4th argument (priceMonitor address)
   const usdcManager = await USDCManager.deploy(
     chainContracts.usdc,
     chainContracts.tokenMessenger,
-    chainContracts.messageTransmitter
+    chainContracts.messageTransmitter,
+    await priceMonitor.getAddress()  // <-- THIS WAS MISSING!
   );
   await usdcManager.waitForDeployment();
   console.log("✅ USDCManager deployed to:", await usdcManager.getAddress());
@@ -72,7 +74,6 @@ async function main() {
   const CrossChainInsurance = await ethers.getContractFactory("SimpleCrossChainInsurance");
   const crossChainInsurance = await CrossChainInsurance.deploy(
     endpoint,
-    deployer.address,
     await priceMonitor.getAddress(),
     await usdcManager.getAddress()
   );

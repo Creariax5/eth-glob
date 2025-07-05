@@ -224,6 +224,45 @@
       "artifacts": [
         "Context"
       ]
+    },
+    "/home/florian/dev/crypto/defi-insurance-oracle/contracts/SimpleCrossChainInsurance.sol": {
+      "lastModificationDate": 1751740980488,
+      "contentHash": "3bf7fcfb804256bcd6f993bc3ca63d98",
+      "sourceName": "contracts/SimpleCrossChainInsurance.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.19"
+      ],
+      "artifacts": [
+        "SimpleCrossChainInsurance"
+      ]
     }
   }
 }

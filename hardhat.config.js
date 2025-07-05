@@ -30,13 +30,20 @@ module.exports = {
     hardhat: {
       chainId: 31337,
     },
-    // Ethereum Sepolia Testnet
+    // Ethereum Sepolia Testnet - EMERGENCY BACKUP RPCs
     ethereumSepolia: {
-      url: process.env.ETHEREUM_SEPOLIA_RPC || "https://1rpc.io/sepolia",
+      // TRY THESE IN ORDER (uncomment one at a time)
+      url: process.env.ETHEREUM_SEPOLIA_RPC || "https://sepolia.drpc.org",           // BACKUP 1
+      // url: process.env.ETHEREUM_SEPOLIA_RPC || "https://rpc.sepolia.org",           // BACKUP 2  
+      // url: process.env.ETHEREUM_SEPOLIA_RPC || "https://ethereum-sepolia.blockpi.network/v1/rpc/public", // BACKUP 3
+      // url: process.env.ETHEREUM_SEPOLIA_RPC || "https://rpc2.sepolia.org",          // BACKUP 4
+      // url: process.env.ETHEREUM_SEPOLIA_RPC || "https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161", // BACKUP 5
+      
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 11155111,
       gas: 3000000,
       gasPrice: 20000000000, // 20 gwei
+      timeout: 60000, // 60 seconds timeout
     },
     // Arbitrum Sepolia Testnet  
     arbitrumSepolia: {
