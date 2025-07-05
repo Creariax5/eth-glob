@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claims - YieldGuard.</title>
+    <link rel="icon" type="image/png" href="../assets/icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Floating Background Elements -->
+    <div class="floating-orb floating-orb-1"></div>
+    <div class="floating-orb floating-orb-2"></div>
+    <div class="floating-orb floating-orb-3"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <span class="icon icon-shield"></span>
+                    </div>
+                    <div class="logo-text">
+                        <h1>YieldGuard.</h1>
+                    </div>
+                </div>
+                
+                <nav class="nav">
+                    <a href="../index.html" class="nav-item">
+                        <span class="icon icon-chart"></span>
+                        Overview
+                    </a>
+                    <a href="safepool.html" class="nav-item">
+                        <span class="icon icon-shield"></span>
+                        Safe Pool
+                    </a>
+                    <a href="boost.html" class="nav-item">
+                        <span class="icon icon-zap"></span>
+                        Boost
+                    </a>
+                    <a href="claims.html" class="nav-item active">
+                        <span class="icon icon-target"></span>
+                        Claims
+                    </a>
+                </nav>
+            </div>
+
+            <div class="header-actions">
+                <div class="chain-switcher">
+                    <button class="chain-btn active" data-chain="ethereum">
+                        <span class="chain-icon">⟨Ξ⟩</span>
+                        <span>Ethereum</span>
+                    </button>
+                    <button class="chain-btn" data-chain="arbitrum">
+                        <span class="chain-icon">◆</span>
+                        <span>Arbitrum</span>
+                    </button>
+                    <button class="chain-btn" data-chain="base">
+                        <span class="chain-icon">◇</span>
+                        <span>Base</span>
+                    </button>
+                </div>
+                
+                <div class="wallet-section">
+                    <div class="wallet-connected" id="wallet-connected">
+                        <div class="balance-info">
+                            <div class="amount">$1,245.50</div>
+                            <div class="label">USDC Balance</div>
+                        </div>
+                        <div class="wallet-address">
+                            <div class="wallet-status"></div>
+                            <span id="wallet-address">0x1234...5678</span>
+                        </div>
+                    </div>
+                    <button class="connect-btn" id="connect-wallet">
+                        <span class="icon icon-wallet"></span>
+                        <span>Connect Wallet</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="glass-container">
+            <!-- Claims Page -->
+            <div class="page active" id="claims">
+                <div class="container">
+                    <div class="page-header">
+                        <h1 class="page-title">Insurance Claims</h1>
+                        <p class="page-subtitle">Track and manage your insurance claims across all protocols</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon primary">
+                                    <span class="icon icon-target"></span>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>Total Claims</h3>
+                                    <div class="stat-value">$1,750.00</div>
+                                </div>
+                            </div>
+                            <div class="stat-footer">
+                                <span class="stat-subtitle">3 claims filed</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon success">
+                                    <span class="icon icon-check"></span>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>Approved</h3>
+                                    <div class="stat-value">$250.00</div>
+                                </div>
+                            </div>
+                            <div class="stat-footer">
+                                <span class="stat-subtitle">1 claim approved</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon warning">
+                                    <span class="icon icon-clock"></span>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>Under Review</h3>
+                                    <div class="stat-value">$500.00</div>
+                                </div>
+                            </div>
+                            <div class="stat-footer">
+                                <span class="stat-subtitle">TVL monitoring active</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="main-panel">
+                        <div class="panel-header">
+                            <h2 class="panel-title">Recent Claims</h2>
+                            <button class="btn btn-primary">
+                                <span class="icon icon-plus"></span>
+                                New Claim
+                            </button>
+                        </div>
+
+                        <div class="position-list">
+                            <div class="position-item">
+                                <div class="position-content">
+                                    <div class="position-left">
+                                        <div class="protocol-avatar">P</div>
+                                        <div class="position-details">
+                                            <h4>Peapods Finance</h4>
+                                            <div class="position-meta">
+                                                <span class="amount">TVL Drop: -7.2%</span>
+                                                <span class="change">Jan 15, 2024</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="position-right">
+                                        <div class="apy">$500.00</div>
+                                        <div class="status" style="color: var(--warning-600);">
+                                            <span class="icon icon-clock"></span>
+                                            Under Review
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="position-item">
+                                <div class="position-content">
+                                    <div class="position-left">
+                                        <div class="protocol-avatar">N</div>
+                                        <div class="position-details">
+                                            <h4>Notional Finance</h4>
+                                            <div class="position-meta">
+                                                <span class="amount">TVL Drop: -8.5%</span>
+                                                <span class="change">Jan 10, 2024</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="position-right">
+                                        <div class="apy">$250.00</div>
+                                        <div class="status insured">
+                                            <span class="icon icon-check"></span>
+                                            Paid Out
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="position-item">
+                                <div class="position-content">
+                                    <div class="position-left">
+                                        <div class="protocol-avatar">W</div>
+                                        <div class="position-details">
+                                            <h4>Wombex Finance</h4>
+                                            <div class="position-meta">
+                                                <span class="amount">TVL Drop: -3.2%</span>
+                                                <span class="change">Jan 5, 2024</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="position-right">
+                                        <div class="apy">$1,000.00</div>
+                                        <div class="status" style="color: var(--error-600);">
+                                            <span class="icon icon-warning"></span>
+                                            Rejected
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
