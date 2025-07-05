@@ -46,9 +46,9 @@ export const CONTRACT_ABIS = ${JSON.stringify(abis, null, 2)};
 // Contract addresses - UPDATE THESE AFTER DEPLOYMENT
 export const CONTRACT_ADDRESSES = {
     ethereum: {
-        priceMonitor: "0x...", // Update after deployment
-        usdcManager: "0x...",
-        crossChainInsurance: "0x...",
+        priceMonitor: "0x98f29347f118f40d89d80AfAbf3a8b20B56aBBAf",
+        usdcManager: "0x27f81Ee57CC39977c8b18de67BCc570eea5B673A",
+        crossChainInsurance: "0xE5935e5F26947dD2C28A753bAB856C0253768082",
         usdc: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238" // Sepolia USDC
     },
     arbitrum: {
