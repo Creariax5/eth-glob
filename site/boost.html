@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boost - YieldGuard.</title>
+    <link rel="icon" type="image/png" href="../assets/icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Floating Background Elements -->
+    <div class="floating-orb floating-orb-1"></div>
+    <div class="floating-orb floating-orb-2"></div>
+    <div class="floating-orb floating-orb-3"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <span class="icon icon-shield"></span>
+                    </div>
+                    <div class="logo-text">
+                        <h1>YieldGuard.</h1>
+                    </div>
+                </div>
+                
+                <nav class="nav">
+                    <a href="../index.html" class="nav-item">
+                        <span class="icon icon-chart"></span>
+                        Overview
+                    </a>
+                    <a href="safepool.html" class="nav-item">
+                        <span class="icon icon-shield"></span>
+                        Safe Pool
+                    </a>
+                    <a href="boost.html" class="nav-item active">
+                        <span class="icon icon-zap"></span>
+                        Boost
+                    </a>
+                    <a href="claims.html" class="nav-item">
+                        <span class="icon icon-target"></span>
+                        Claims
+                    </a>
+                </nav>
+            </div>
+
+            <div class="header-actions">
+                <div class="chain-switcher">
+                    <button class="chain-btn active" data-chain="ethereum">
+                        <span class="chain-icon">⟨Ξ⟩</span>
+                        <span>Ethereum</span>
+                    </button>
+                    <button class="chain-btn" data-chain="arbitrum">
+                        <span class="chain-icon">◆</span>
+                        <span>Arbitrum</span>
+                    </button>
+                    <button class="chain-btn" data-chain="base">
+                        <span class="chain-icon">◇</span>
+                        <span>Base</span>
+                    </button>
+                </div>
+                
+                <div class="wallet-section">
+                    <div class="wallet-connected" id="wallet-connected">
+                        <div class="balance-info">
+                            <div class="amount">$1,245.50</div>
+                            <div class="label">USDC Balance</div>
+                        </div>
+                        <div class="wallet-address">
+                            <div class="wallet-status"></div>
+                            <span id="wallet-address">0x1234...5678</span>
+                        </div>
+                    </div>
+                    <button class="connect-btn" id="connect-wallet">
+                        <span class="icon icon-wallet"></span>
+                        <span>Connect Wallet</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="glass-container">
+            <!-- Boost Page -->
+            <div class="page active" id="boost">
+                <div class="container">
+                    <div class="page-header">
+                        <h1 class="page-title">Boosted Pool</h1>
+                        <p class="page-subtitle">Insurance provider strategy - Earn up to 62% APY by providing insurance coverage</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-card">
+                            <div class="form-header">
+                                <div class="form-icon">
+                                    <span class="icon icon-zap"></span>
+                                </div>
+                                <h2 class="form-title">Provide Coverage</h2>
+                            </div>
+
+                            <form id="coverage-form">
+                                <div class="form-group">
+                                    <label class="form-label">Select Base Protocol (4% APY)</label>
+                                    <select class="form-select" id="base-protocol-select">
+                                        <option value="">Choose stable protocol...</option>
+                                        <option value="aave">Aave - 4% APY (Top 10 TVL)</option>
+                                        <option value="compound">Compound - 4% APY (Top 10 TVL)</option>
+                                        <option value="makerdao">MakerDAO - 4% APY (Top 10 TVL)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Select Protocols to Insure (Cumulative Premiums)</label>
+                                    <div class="checkbox-grid">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" class="checkbox-input" name="protocols" value="peapods" data-premium="8">
+                                            <div class="checkbox-content">
+                                                <span class="checkbox-name">Peapods Finance</span>
+                                                <span class="checkbox-apy">+8% Premium</span>
+                                            </div>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" class="checkbox-input" name="protocols" value="notional" data-premium="15">
+                                            <div class="checkbox-content">
+                                                <span class="checkbox-name">Notional Finance</span>
+                                                <span class="checkbox-apy">+15% Premium</span>
+                                            </div>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" class="checkbox-input" name="protocols" value="flare" data-premium="5">
+                                            <div class="checkbox-content">
+                                                <span class="checkbox-name">Flare Finance</span>
+                                                <span class="checkbox-apy">+5% Premium</span>
+                                            </div>
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" class="checkbox-input" name="protocols" value="wombex" data-premium="30">
+                                            <div class="checkbox-content">
+                                                <span class="checkbox-name">Wombex Finance</span>
+                                                <span class="checkbox-apy">+30% Premium</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="yield-calculator">
+                                    <div class="calc-header">
+                                        <h3>Your Potential APY</h3>
+                                    </div>
+                                    <div class="calc-breakdown">
+                                        <div class="calc-item">
+                                            <span class="calc-label">Base Protocol APY:</span>
+                                            <span class="calc-value">4%</span>
+                                        </div>
+                                        <div class="calc-item" id="premium-breakdown">
+                                            <span class="calc-label">Insurance Premiums:</span>
+                                            <span class="calc-value" id="total-premiums">+0%</span>
+                                        </div>
+                                        <div class="calc-item total-apy">
+                                            <span class="calc-label">Total Potential APY:</span>
+                                            <span class="calc-value" id="total-apy">4%</span>
+                                        </div>
+                                    </div>
+                                    <div class="risk-warning">
+                                        <span class="icon icon-warning"></span>
+                                        <span>Higher yields = Higher risk. You must compensate Safe Pool users if insured protocols fail.</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Insurance Deposit Amount (USDC)</label>
+                                    <input type="number" class="form-input" id="coverage-amount" placeholder="0.00">
+                                </div>
+
+                                <div class="insurance-banner">
+                                    <div class="insurance-header">
+                                        <div class="insurance-icon">
+                                            <span class="icon icon-trending"></span>
+                                        </div>
+                                        <span class="insurance-title">Insurance Provider Strategy</span>
+                                    </div>
+                                    <p class="insurance-desc">
+                                        Earn premiums from Safe Pool users while maintaining your base yield. Your deposit acts as collateral for insurance payouts.
+                                    </p>
+                                </div>
+
+                                <button type="submit" class="submit-btn" id="coverage-btn">
+                                    <span class="icon icon-zap"></span>
+                                    <span>Become Insurance Provider</span>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="form-card">
+                            <div class="form-header">
+                                <div class="form-icon">
+                                    <span class="icon icon-chart"></span>
+                                </div>
+                                <h2 class="form-title">Your Statistics</h2>
+                            </div>
+
+                            <div class="stats-list">
+                                <div class="stat-item">
+                                    <div class="stat-item-icon success">
+                                        <span class="icon icon-dollar"></span>
+                                    </div>
+                                    <div class="stat-item-content">
+                                        <div class="stat-item-label">Total Insurance Provided</div>
+                                        <div class="stat-item-value">$2,500.00</div>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-item-icon primary">
+                                        <span class="icon icon-trending"></span>
+                                    </div>
+                                    <div class="stat-item-content">
+                                        <div class="stat-item-label">Current Total APY</div>
+                                        <div class="stat-item-value">32%</div>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-item-icon warning">
+                                        <span class="icon icon-target"></span>
+                                    </div>
+                                    <div class="stat-item-content">
+                                        <div class="stat-item-label">Protocols Insured</div>
+                                        <div class="stat-item-value">3</div>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-item-icon secondary">
+                                        <span class="icon icon-sparkles"></span>
+                                    </div>
+                                    <div class="stat-item-content">
+                                        <div class="stat-item-label">Premium Earnings</div>
+                                        <div class="stat-item-value">$156.78</div>
+                                    </div>
+                                </div>
+                                <div class="stat-item risk-exposure">
+                                    <div class="stat-item-icon" style="background: var(--error-500);">
+                                        <span class="icon icon-warning"></span>
+                                    </div>
+                                    <div class="stat-item-content">
+                                        <div class="stat-item-label">Potential Max Loss</div>
+                                        <div class="stat-item-value">$1,200.00</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
