@@ -1,0 +1,18 @@
+{
+  "chainName": "baseSepolia",
+  "network": "baseSepolia",
+  "contracts": {
+    "priceMonitor": "0x040B41A32109e24D3F746510f17721A28167505a",
+    "usdcManager": "0x0Be1C59aA1fccb3b5077Bc57697c72C17167cA17",
+    "crossChainInsurance": "0xb1f5b41A7709716559e433b13653fF9FD1c2c1F1"
+  },
+  "layerZero": {
+    "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+    "chainId": 40245
+  },
+  "circle": {
+    "usdc": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    "tokenMessenger": "0x9f3B8679c73C2Fef8b59B4f3444d4e156fb70AA5",
+    "messageTransmitter": "0x7865fAfC2db2093669d92c0F33AeEF291086BEFD"
+  }
+}

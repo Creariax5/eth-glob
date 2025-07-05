@@ -1,0 +1,18 @@
+{
+  "chainName": "arbitrumSepolia",
+  "network": "arbitrumSepolia",
+  "contracts": {
+    "priceMonitor": "0x040B41A32109e24D3F746510f17721A28167505a",
+    "usdcManager": "0x0Be1C59aA1fccb3b5077Bc57697c72C17167cA17",
+    "crossChainInsurance": "0xb1f5b41A7709716559e433b13653fF9FD1c2c1F1"
+  },
+  "layerZero": {
+    "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+    "chainId": 40231
+  },
+  "circle": {
+    "usdc": "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d",
+    "tokenMessenger": "0x9f3B8679c73C2Fef8b59B4f3444d4e156fb70AA5",
+    "messageTransmitter": "0xaCF1ceeF35caAc005e15888dDb8A3515C41B4872"
+  }
+}
