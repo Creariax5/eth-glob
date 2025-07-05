@@ -1,12 +1,16 @@
 {
   "name": "defi-insurance-oracle",
   "version": "1.0.0",
-  "description": "Cross-chain DeFi insurance platform",
+  "description": "Cross-chain DeFi insurance platform with LayerZero",
   "main": "index.js",
   "scripts": {
     "test": "hardhat test",
     "compile": "hardhat compile",
-    "deploy": "hardhat run scripts/deploy.js"
+    "deploy": "hardhat run scripts/deployAll.js",
+    "deploy:ethereum": "hardhat run scripts/deployAll.js --network ethereumSepolia",
+    "deploy:arbitrum": "hardhat run scripts/deployAll.js --network arbitrumSepolia",
+    "deploy:base": "hardhat run scripts/deployAll.js --network baseSepolia",
+    "deploy:all": "npm run deploy:ethereum && npm run deploy:arbitrum && npm run deploy:base"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.9",
@@ -29,6 +33,9 @@
     "@chainlink/contracts": "^1.4.0",
     "@circle-fin/developer-controlled-wallets": "^8.3.0",
     "@circle-fin/smart-contract-platform": "^8.3.0",
+    "@layerzerolabs/lz-evm-oapp-v2": "^2.3.44",
+    "@layerzerolabs/lz-evm-protocol-v2": "^2.3.44",
+    "@layerzerolabs/lz-v2-utilities": "^2.3.3",
     "@openzeppelin/contracts": "^5.3.0",
     "axios": "^1.10.0",
     "dotenv": "^16.6.1",
