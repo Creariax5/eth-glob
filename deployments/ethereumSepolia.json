@@ -2,9 +2,9 @@
   "chainName": "ethereumSepolia",
   "network": "ethereumSepolia",
   "contracts": {
-    "priceMonitor": "0x8F2E074D8f13322cC2242542CbC59ac1Fd2e4597",
-    "usdcManager": "0xB9601690Ac089Ab427120a1573BE6eE8C950671D",
-    "crossChainInsurance": "0xE8f02D72528492C4c301aeEa0d8d3f67aFCa571A"
+    "priceMonitor": "0x98f29347f118f40d89d80AfAbf3a8b20B56aBBAf",
+    "usdcManager": "0x27f81Ee57CC39977c8b18de67BCc570eea5B673A",
+    "crossChainInsurance": "0xE5935e5F26947dD2C28A753bAB856C0253768082"
   },
   "layerZero": {
     "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
