@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafePool - YieldGuard.</title>
+    <link rel="icon" type="image/png" href="../assets/icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Floating Background Elements -->
+    <div class="floating-orb floating-orb-1"></div>
+    <div class="floating-orb floating-orb-2"></div>
+    <div class="floating-orb floating-orb-3"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <span class="icon icon-shield"></span>
+                    </div>
+                    <div class="logo-text">
+                        <h1>YieldGuard.</h1>
+                    </div>
+                </div>
+                
+                <nav class="nav">
+                    <a href="../index.html" class="nav-item">
+                        <span class="icon icon-chart"></span>
+                        Overview
+                    </a>
+                    <a href="safepool.html" class="nav-item active">
+                        <span class="icon icon-shield"></span>
+                        SafePool
+                    </a>
+                    <a href="boost.html" class="nav-item">
+                        <span class="icon icon-zap"></span>
+                        Boost
+                    </a>
+                    <a href="claims.html" class="nav-item">
+                        <span class="icon icon-target"></span>
+                        Claims
+                    </a>
+                </nav>
+            </div>
+
+            <div class="header-actions">
+                <div class="chain-switcher">
+                    <button class="chain-btn active" data-chain="ethereum">
+                        <span class="chain-icon">⟨Ξ⟩</span>
+                        <span>Ethereum</span>
+                    </button>
+                    <button class="chain-btn" data-chain="arbitrum">
+                        <span class="chain-icon">◆</span>
+                        <span>Arbitrum</span>
+                    </button>
+                    <button class="chain-btn" data-chain="base">
+                        <span class="chain-icon">◇</span>
+                        <span>Base</span>
+                    </button>
+                </div>
+                
+                <div class="wallet-section">
+                    <div class="wallet-connected" id="wallet-connected">
+                        <div class="balance-info">
+                            <div class="amount">$1,245.50</div>
+                            <div class="label">USDC Balance</div>
+                        </div>
+                        <div class="wallet-address">
+                            <div class="wallet-status"></div>
+                            <span id="wallet-address">0x1234...5678</span>
+                        </div>
+                    </div>
+                    <button class="connect-btn" id="connect-wallet">
+                        <span class="icon icon-wallet"></span>
+                        <span>Connect Wallet</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="glass-container">
+            <!-- Safe Pool Page -->
+            <div class="page active" id="safepool">
+                <div class="container">
+                    <div class="page-header">
+                        <h1 class="page-title">SafePool</h1>
+                        <p class="page-subtitle">Protected yield strategy - Earn high DeFi yields with 100% insurance coverage</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-card">
+                            <div class="form-header">
+                                <div class="form-icon">
+                                    <span class="icon icon-lock"></span>
+                                </div>
+                                <h2 class="form-title">Secure Deposit</h2>
+                            </div>
+
+                            <form id="deposit-form">
+                                <div class="form-group">
+                                    <label class="form-label">Select High-Yield Protocol</label>
+                                    <select class="form-select" id="protocol-select">
+                                        <option value="">Choose a protocol...</option>
+                                        <option value="peapods">Peapods Finance - 25% APY → 20% APY (Protected)</option>
+                                        <option value="notional">Notional Finance - 30% APY → 25% APY (Protected)</option>
+                                        <option value="flare">Flare Finance - 18% APY → 13% APY (Protected)</option>
+                                        <option value="wombex">Wombex Finance - 45% APY → 40% APY (Protected)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Deposit Amount (USDC)</label>
+                                    <input type="number" class="form-input" id="deposit-amount" placeholder="0.00">
+                                </div>
+
+                                <div class="yield-breakdown">
+                                    <div class="yield-item">
+                                        <span class="yield-label">Base Protocol APY:</span>
+                                        <span class="yield-value" id="base-apy">25%</span>
+                                    </div>
+                                    <div class="yield-item">
+                                        <span class="yield-label">Insurance Premium:</span>
+                                        <span class="yield-value negative" id="insurance-cost">-5%</span>
+                                    </div>
+                                    <div class="yield-item total">
+                                        <span class="yield-label">Your Protected APY:</span>
+                                        <span class="yield-value positive" id="protected-apy">20%</span>
+                                    </div>
+                                </div>
+
+                                <div class="insurance-banner">
+                                    <div class="insurance-header">
+                                        <div class="insurance-icon">
+                                            <span class="icon icon-shield"></span>
+                                        </div>
+                                        <span class="insurance-title">100% Principal Protection</span>
+                                    </div>
+                                    <p class="insurance-desc">
+                                        Your deposit is fully protected against protocol failures. If TVL drops 5-10% from all-time high, you receive 100% refund from our insurance pool.
+                                    </p>
+                                </div>
+
+                                <button type="submit" class="submit-btn" id="deposit-btn">
+                                    <span class="icon icon-shield"></span>
+                                    <span>Deposit with Protection</span>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="form-card">
+                            <div class="form-header">
+                                <div class="form-icon">
+                                    <span class="icon icon-chart"></span>
+                                </div>
+                                <h2 class="form-title">Available Protocols</h2>
+                            </div>
+
+                            <div class="protocol-grid">
+                                <div class="protocol-card">
+                                    <div class="protocol-header">
+                                        <div class="protocol-left">
+                                            <div class="protocol-icon">P</div>
+                                            <div class="protocol-info">
+                                                <h4>Peapods Finance</h4>
+                                                <div class="tvl">$2.1B TVL</div>
+                                            </div>
+                                        </div>
+                                        <div class="protocol-right">
+                                            <div class="protocol-apy">25%</div>
+                                            <div class="protocol-label">Base APY</div>
+                                        </div>
+                                    </div>
+                                    <div class="protocol-footer">
+                                        <div class="risk-badge medium">High Risk</div>
+                                        <div class="protocol-features">
+                                            <span class="icon icon-shield"></span>
+                                            20% Protected
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="protocol-card">
+                                    <div class="protocol-header">
+                                        <div class="protocol-left">
+                                            <div class="protocol-icon">N</div>
+                                            <div class="protocol-info">
+                                                <h4>Notional Finance</h4>
+                                                <div class="tvl">$1.8B TVL</div>
+                                            </div>
+                                        </div>
+                                        <div class="protocol-right">
+                                            <div class="protocol-apy">30%</div>
+                                            <div class="protocol-label">Base APY</div>
+                                        </div>
+                                    </div>
+                                    <div class="protocol-footer">
+                                        <div class="risk-badge medium">High Risk</div>
+                                        <div class="protocol-features">
+                                            <span class="icon icon-shield"></span>
+                                            25% Protected
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="protocol-card">
+                                    <div class="protocol-header">
+                                        <div class="protocol-left">
+                                            <div class="protocol-icon">F</div>
+                                            <div class="protocol-info">
+                                                <h4>Flare Finance</h4>
+                                                <div class="tvl">$800M TVL</div>
+                                            </div>
+                                        </div>
+                                        <div class="protocol-right">
+                                            <div class="protocol-apy">18%</div>
+                                            <div class="protocol-label">Base APY</div>
+                                        </div>
+                                    </div>
+                                    <div class="protocol-footer">
+                                        <div class="risk-badge medium">High Risk</div>
+                                        <div class="protocol-features">
+                                            <span class="icon icon-shield"></span>
+                                            13% Protected
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="protocol-card">
+                                    <div class="protocol-header">
+                                        <div class="protocol-left">
+                                            <div class="protocol-icon">W</div>
+                                            <div class="protocol-info">
+                                                <h4>Wombex Finance</h4>
+                                                <div class="tvl">$650M TVL</div>
+                                            </div>
+                                        </div>
+                                        <div class="protocol-right">
+                                            <div class="protocol-apy">45%</div>
+                                            <div class="protocol-label">Base APY</div>
+                                        </div>
+                                    </div>
+                                    <div class="protocol-footer">
+                                        <div class="risk-badge medium">Very High Risk</div>
+                                        <div class="protocol-features">
+                                            <span class="icon icon-shield"></span>
+                                            40% Protected
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
