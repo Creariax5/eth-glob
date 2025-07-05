@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YieldGuard. - Premium DeFi Insurance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #1a1f3a;
+            --bg-glass: rgba(26, 31, 58, 0.8);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a9c0;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --success-500: #10b981;
+            --warning-500: #f59e0b;
+            --error-500: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        .floating-orb-1 {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -150px;
+            animation-delay: 0s;
+        }
+
+        .floating-orb-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            left: -100px;
+            animation-delay: 2s;
+        }
+
+        .floating-orb-3 {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            left: 50%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .chain-switcher {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg-glass);
+            padding: 0.25rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .chain-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chain-btn.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .wallet-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .connect-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .connect-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .wallet-connected {
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .wallet-connected.active {
+            display: flex;
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .glass-container {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            min-height: 80vh;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .stat-icon.primary { background: var(--accent-primary); }
+        .stat-icon.success { background: var(--success-500); }
+        .stat-icon.warning { background: var(--warning-500); }
+        .stat-icon.secondary { background: var(--accent-secondary); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .form-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .submit-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .protocol-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .protocol-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .position-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .position-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .position-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status.insured {
+            color: var(--success-500);
+        }
+
+        .status.uninsured {
+            color: var(--warning-500);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .logo-section {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Background Elements -->
+    <div class="floating-orb floating-orb-1"></div>
+    <div class="floating-orb floating-orb-2"></div>
+    <div class="floating-orb floating-orb-3"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="logo">
+                    <div class="logo-icon">🛡️</div>
+                    <h1>YieldGuard.</h1>
+                </div>
+                
+                <nav class="nav">
+                    <div class="nav-item active" data-page="dashboard">
+                        📊 Overview
+                    </div>
+                    <div class="nav-item" data-page="safepool">
+                        🛡️ SafePool
+                    </div>
+                    <div class="nav-item" data-page="boost">
+                        ⚡ Boost
+                    </div>
+                    <div class="nav-item" data-page="claims">
+                        🎯 Claims
+                    </div>
+                </nav>
+            </div>
+
+            <div class="header-actions">
+                <div class="chain-switcher">
+                    <button class="chain-btn active" data-chain="ethereum">
+                        <span>⟨Ξ⟩ Ethereum</span>
+                    </button>
+                    <button class="chain-btn" data-chain="arbitrum">
+                        <span>◆ Arbitrum</span>
+                    </button>
+                    <button class="chain-btn" data-chain="base">
+                        <span>◇ Base</span>
+                    </button>
+                </div>
+                
+                <div class="wallet-section">
+                    <div class="wallet-connected" id="wallet-connected">
+                        <div class="balance-info">
+                            <div class="amount" id="usdc-balance">$0.00</div>
+                            <div class="label">USDC Balance</div>
+                        </div>
+                        <div class="wallet-address">
+                            <span id="wallet-address">0x...</span>
+                        </div>
+                    </div>
+                    <button class="connect-btn" id="connect-wallet" onclick="handleWalletConnect()">
+                        🔗 Connect Wallet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="glass-container">
+            <!-- Dashboard Page -->
+            <div class="page active" id="dashboard">
+                <div class="page-header">
+                    <h1 class="page-title">Portfolio Overview</h1>
+                    <p class="page-subtitle">Manage your cross-chain DeFi positions with premium insurance coverage</p>
+                    <div class="page-actions">
+                        <div class="btn btn-primary" data-page="safepool">
+                            🛡️ Start Investing
+                        </div>
+                        <div class="btn btn-secondary" data-page="boost">
+                            ⚡ Boost Yield
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon primary">💰</div>
+                            <div class="stat-info">
+                                <h3>Total Portfolio</h3>
+                                <div class="stat-value" id="total-portfolio">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon success">🛡️</div>
+                            <div class="stat-info">
+                                <h3>Insured Value</h3>
+                                <div class="stat-value" id="insured-value">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Demo Section -->
+                <div class="form-card">
+                    <h2>🎬 Demo Functions</h2>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="quickConnect()">
+                            🚀 Quick Connect
+                        </button>
+                        <button class="btn btn-secondary" onclick="demoSafePoolDeposit()">
+                            📝 Fill SafePool Form
+                        </button>
+                        <button class="btn btn-secondary" onclick="triggerDemo()">
+                            🎯 Run Demo Sequence
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SafePool Page -->
+            <div class="page hidden" id="safepool">
+                <div class="page-header">
+                    <h1 class="page-title">SafePool</h1>
+                    <p class="page-subtitle">Protected yield strategy - Earn high DeFi yields with 100% insurance coverage</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-card">
+                        <h2>Secure Deposit</h2>
+                        <form id="deposit-form">
+                            <div class="form-group">
+                                <label class="form-label">Select High-Yield Protocol</label>
+                                <select class="form-select" id="protocol-select">
+                                    <option value="">Choose a protocol...</option>
+                                    <option value="aave">Aave - 5.2% APY → 4.2% APY (Protected)</option>
+                                    <option value="compound">Compound - 4.8% APY → 3.8% APY (Protected)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Deposit Amount (USDC)</label>
+                                <input type="number" class="form-input" id="deposit-amount" placeholder="0.00">
+                            </div>
+
+                            <button type="submit" class="submit-btn">
+                                🛡️ Deposit with Protection
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="form-card">
+                        <h2>Available Protocols</h2>
+                        <div class="protocol-grid">
+                            <div class="protocol-card">
+                                <h4>Aave Protocol</h4>
+                                <div>5.2% Base APY → 4.2% Protected</div>
+                            </div>
+                            <div class="protocol-card">
+                                <h4>Compound</h4>
+                                <div>4.8% Base APY → 3.8% Protected</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boost Page -->
+            <div class="page hidden" id="boost">
+                <div class="page-header">
+                    <h1 class="page-title">Boosted Pool</h1>
+                    <p class="page-subtitle">Insurance provider strategy - Earn up to 32% APY by providing insurance coverage</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-card">
+                        <h2>Provide Coverage</h2>
+                        <form id="coverage-form">
+                            <div class="form-group">
+                                <label class="form-label">Insurance Deposit Amount (USDC)</label>
+                                <input type="number" class="form-input" id="coverage-amount" placeholder="0.00">
+                            </div>
+
+                            <button type="submit" class="submit-btn">
+                                ⚡ Become Insurance Provider
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="form-card">
+                        <h2>Your Statistics</h2>
+                        <div class="stats-list">
+                            <div class="stat-item">
+                                <div>Total Insurance Provided: $<span id="total-insurance">0.00</span></div>
+                            </div>
+                            <div class="stat-item">
+                                <div>Current APY: <span id="current-apy">4%</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Claims Page -->
+            <div class="page hidden" id="claims">
+                <div class="page-header">
+                    <h1 class="page-title">Insurance Claims</h1>
+                    <p class="page-subtitle">Track and manage your insurance claims across all protocols</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon primary">🎯</div>
+                            <div class="stat-info">
+                                <h3>Total Claims</h3>
+                                <div class="stat-value" id="total-claims">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon success">✅</div>
+                            <div class="stat-info">
+                                <h3>Approved</h3>
+                                <div class="stat-value" id="approved-claims">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <h2>Recent Claims</h2>
+                    <div id="claims-list">
+                        <p>No claims found. Connect your wallet to view claims.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.1/ethers.umd.min.js"></script>
+    <script>
+        // Contract configuration
+        const CONTRACTS = {
+            ethereum: {
+                priceMonitor: "0x98f29347f118f40d89d80AfAbf3a8b20B56aBBAf",
+                usdcManager: "0x27f81Ee57CC39977c8b18de67BCc570eea5B673A", 
+                crossChainInsurance: "0xE5935e5F26947dD2C28A753bAB856C0253768082",
+                usdc: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"
+            }
+        };
+
+        const SIMPLE_ABI = [
+            "function balanceOf(address owner) view returns (uint256)",
+            "function depositToSafePool(uint256 amount, bytes32 protocol) payable",
+            "function provideCoverage(bytes32 protocol, uint256 amount) payable",
+            "function getUserCoverage(address user, bytes32 protocol) view returns (tuple(uint256 coverageAmount, uint256 premiumPaid, bool isActive))",
+            "function checkProtocolHealth(bytes32 protocol) view returns (bool)",
+            "function approve(address spender, uint256 amount) returns (bool)"
+        ];
+
+        let web3Provider;
+        let signer;
+        let userAddress;
+        let currentChain = 'ethereum';
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 YieldGuard DApp Loading...');
+            
+            // Wait for wallet injection
+            setTimeout(() => {
+                console.log('🔍 Checking wallets...');
+                console.log('window.ethereum:', !!window.ethereum);
+                console.log('Rabby detected:', window.ethereum?.isRabby);
+                console.log('MetaMask detected:', window.ethereum?.isMetaMask);
+                
+                setupApp();
+            }, 2000);
+        });
+
+        function setupApp() {
+            console.log('⚙️ Setting up app...');
+            setupNavigation();
+            setupWalletEvents();
+            setupForms();
+            
+            // Auto-connect if already connected
+            if (window.ethereum?.selectedAddress) {
+                console.log('🔄 Auto-connecting to existing session...');
+                quickConnect();
+            }
+        }
+
+        // Navigation
+        function setupNavigation() {
+            const navItems = document.querySelectorAll('[data-page]');
+            
+            navItems.forEach(item => {
+                item.onclick = function(e) {
+                    e.preventDefault();
+                    const targetPage = this.getAttribute('data-page');
+                    showPage(targetPage);
+                    
+                    // Update nav state
+                    document.querySelectorAll('.nav-item').forEach(nav => 
+                        nav.classList.remove('active')
+                    );
+                    if (this.classList.contains('nav-item')) {
+                        this.classList.add('active');
+                    }
+                };
+            });
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+                page.classList.remove('active');
+            });
+            
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                targetPage.classList.add('active');
+            }
+        }
+
+        // Wallet Functions
+        function setupWalletEvents() {
+            // Multiple ways to trigger wallet connection
+            const connectBtn = document.getElementById('connect-wallet');
+            
+            // Method 1: onclick attribute (already in HTML)
+            // Method 2: addEventListener
+            if (connectBtn) {
+                connectBtn.addEventListener('click', handleWalletConnect);
+            }
+            
+            // Method 3: Global function
+            window.handleWalletConnect = handleWalletConnect;
+        }
+
+        async function handleWalletConnect() {
+            console.log('🔗 Connect wallet triggered!');
+            await quickConnect();
+        }
+
+        // Main connection function
+        async function quickConnect() {
+            try {
+                console.log('🚀 Quick Connect Starting...');
+                
+                if (!window.ethereum) {
+                    throw new Error('No Ethereum wallet found. Please install MetaMask or Rabby.');
+                }
+
+                console.log('✅ Ethereum provider found');
+                
+                // Request accounts
+                console.log('📝 Requesting accounts...');
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+                
+                if (!accounts || accounts.length === 0) {
+                    throw new Error('No accounts received');
+                }
+
+                console.log('👤 Accounts received:', accounts);
+
+                // Setup provider
+                web3Provider = new ethers.BrowserProvider(window.ethereum);
+                signer = await web3Provider.getSigner();
+                userAddress = await signer.getAddress();
+
+                // Update UI
+                updateWalletUI(userAddress);
+                
+                // Load data
+                await loadUserData();
+                
+                console.log('✅ Connection successful!');
+                alert(`✅ Wallet Connected!\n${userAddress.substring(0, 10)}...`);
+                
+            } catch (error) {
+                console.error('❌ Connection failed:', error);
+                
+                let errorMsg = 'Connection failed: ';
+                if (error.code === 4001) {
+                    errorMsg += 'User rejected connection';
+                } else if (error.code === -32002) {
+                    errorMsg += 'Connection already pending - check your wallet';
+                } else {
+                    errorMsg += error.message;
+                }
+                
+                alert(errorMsg);
+            }
+        }
+
+        function updateWalletUI(address) {
+            document.getElementById('connect-wallet').style.display = 'none';
+            document.getElementById('wallet-connected').classList.add('active');
+            document.getElementById('wallet-address').textContent = 
+                address.substring(0, 6) + '...' + address.substring(38);
+        }
+
+        // Forms
+        function setupForms() {
+            const depositForm = document.getElementById('deposit-form');
+            const coverageForm = document.getElementById('coverage-form');
+            
+            if (depositForm) {
+                depositForm.onsubmit = handleSafePoolDeposit;
+            }
+            
+            if (coverageForm) {
+                coverageForm.onsubmit = handleProvideCoverage;
+            }
+        }
+
+        async function handleSafePoolDeposit(e) {
+            e.preventDefault();
+            
+            if (!signer) {
+                alert('Please connect your wallet first!');
+                return;
+            }
+
+            const protocol = document.getElementById('protocol-select').value;
+            const amount = document.getElementById('deposit-amount').value;
+            
+            if (!protocol || !amount) {
+                alert('Please fill in all fields!');
+                return;
+            }
+
+            try {
+                const protocolId = ethers.keccak256(ethers.toUtf8Bytes(protocol.toUpperCase()));
+                const amountWei = ethers.parseUnits(amount, 6);
+
+                console.log('🔄 SafePool deposit...', { protocol, amount });
+
+                // This is a demo - show success without actual transaction
+                alert(`✅ Demo: SafePool deposit successful!\nProtocol: ${protocol}\nAmount: ${amount} USDC\n\n(Demo mode - no real transaction)`);
+                
+                document.getElementById('deposit-form').reset();
+
+            } catch (error) {
+                console.error('❌ Deposit failed:', error);
+                alert('Deposit failed: ' + error.message);
+            }
+        }
+
+        async function handleProvideCoverage(e) {
+            e.preventDefault();
+            
+            if (!signer) {
+                alert('Please connect your wallet first!');
+                return;
+            }
+
+            const amount = document.getElementById('coverage-amount').value;
+            
+            if (!amount) {
+                alert('Please enter coverage amount!');
+                return;
+            }
+
+            try {
+                console.log('🔄 Coverage provision...', { amount });
+
+                // Demo mode
+                alert(`✅ Demo: Coverage provision successful!\nAmount: ${amount} USDC\n\n(Demo mode - no real transaction)`);
+                
+                document.getElementById('coverage-form').reset();
+
+            } catch (error) {
+                console.error('❌ Coverage failed:', error);
+                alert('Coverage failed: ' + error.message);
+            }
+        }
+
+        async function loadUserData() {
+            if (!signer || !userAddress) return;
+
+            try {
+                // Demo data for presentation
+                document.getElementById('usdc-balance').textContent = '$1,245.50';
+                document.getElementById('total-portfolio').textContent = '$1,245.50';
+                document.getElementById('insured-value').textContent = '$850.00';
+                document.getElementById('total-insurance').textContent = '850.00';
+
+                console.log('💰 Demo data loaded');
+
+            } catch (error) {
+                console.error('❌ Failed to load data:', error);
+            }
+        }
+
+        // Demo Functions
+        window.demoSafePoolDeposit = function() {
+            showPage('safepool');
+            document.getElementById('protocol-select').value = 'aave';
+            document.getElementById('deposit-amount').value = '100';
+            console.log('🎯 Demo: SafePool form filled');
+        };
+
+        window.demoProvideCoverage = function() {
+            showPage('boost');
+            document.getElementById('coverage-amount').value = '500';
+            console.log('🎯 Demo: Coverage form filled');
+        };
+
+        window.triggerDemo = async function() {
+            console.log('🚀 DEMO SEQUENCE STARTING...');
+            
+            showPage('safepool');
+            await new Promise(r => setTimeout(r, 1000));
+            
+            showPage('boost');
+            await new Promise(r => setTimeout(r, 1000));
+            
+            showPage('claims');
+            await new Promise(r => setTimeout(r, 1000));
+            
+            showPage('dashboard');
+            console.log('✅ Demo sequence complete!');
+        };
+
+        // Debug Functions
+        window.debugWallet = function() {
+            console.log('🔧 WALLET DEBUG:');
+            console.log('window.ethereum:', !!window.ethereum);
+            console.log('isRabby:', window.ethereum?.isRabby);
+            console.log('isMetaMask:', window.ethereum?.isMetaMask);
+            console.log('selectedAddress:', window.ethereum?.selectedAddress);
+        };
+
+        // Make functions globally available
+        window.quickConnect = quickConnect;
+        window.handleWalletConnect = handleWalletConnect;
+
+        console.log('🎯 YieldGuard DApp Loaded!');
+        console.log('📋 Available functions:');
+        console.log('  - quickConnect() - Fast wallet connection');
+        console.log('  - debugWallet() - Debug wallet status');
+        console.log('  - triggerDemo() - Run demo sequence');
+        console.log('  - demoSafePoolDeposit() - Fill SafePool form');
+        console.log('  - demoProvideCoverage() - Fill Coverage form');
+    </script>
+</body>
+</html>
