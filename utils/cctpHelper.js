@@ -24,7 +24,8 @@ class CCTPHelper {
   async getUSDCBalance(chainName, address, customRpcUrl = null) {
     try {
       const rpcUrl = customRpcUrl || this.config.rpcUrls[chainName];
-      const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+      // FIXED: ethers v6 syntax
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
       
       const usdcContract = new ethers.Contract(
         this.config.usdcContracts[chainName],
@@ -37,7 +38,8 @@ class CCTPHelper {
       const symbol = await usdcContract.symbol();
       
       return {
-        balance: ethers.utils.formatUnits(balance, decimals),
+        // FIXED: ethers v6 syntax
+        balance: ethers.formatUnits(balance, decimals),
         raw: balance,
         decimals: decimals,
         symbol: symbol
@@ -51,7 +53,8 @@ class CCTPHelper {
   async testConnection(chainName) {
     try {
       const rpcUrl = this.config.rpcUrls[chainName];
-      const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+      // FIXED: ethers v6 syntax
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
       
       // Test basic connection
       const network = await provider.getNetwork();
