@@ -1,3 +1,128 @@
+// Add this to the top of your existing site/script.js
+
+// Ensure Ethers.js is available with fallback
+window.ensureEthers = async function() {
+    if (typeof window.ethers !== 'undefined') {
+        return true;
+    }
+    
+    console.log('📦 Ethers.js not found, attempting to load...');
+    
+    return new Promise((resolve) => {
+        // Create script element with fallback CDNs
+        const cdns = [
+            'https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js',
+            'https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js'
+        ];
+        
+        let cdnIndex = 0;
+        
+        function tryNextCDN() {
+            if (cdnIndex >= cdns.length) {
+                console.error('❌ Failed to load Ethers.js from all CDNs');
+                showNotification('Failed to load Web3 library. Please refresh the page.', 'error');
+                resolve(false);
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.src = cdns[cdnIndex];
+            script.onload = () => {
+                console.log(`✅ Ethers.js loaded from: ${cdns[cdnIndex]}`);
+                resolve(true);
+            };
+            script.onerror = () => {
+                console.warn(`⚠️ Failed to load from: ${cdns[cdnIndex]}`);
+                cdnIndex++;
+                tryNextCDN();
+            };
+            document.head.appendChild(script);
+        }
+        
+        tryNextCDN();
+    });
+};
+
+// Enhanced notification function (only add if not already exists)
+if (typeof window.showNotification === 'undefined') {
+    window.showNotification = function(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(0,0,0,0.9); color: white; border-radius: 8px; margin: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border-left: 4px solid ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : type === 'warning' ? '#fbbf24' : '#3b82f6'};">
+                <span style="flex: 1;">${message}</span>
+                <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.25rem;">&times;</button>
+            </div>
+        `;
+        
+        // Position notifications
+        let container = document.getElementById('notification-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'notification-container';
+            container.style.cssText = 'position: fixed; top: 1rem; right: 1rem; z-index: 1000; max-width: 300px;';
+            document.body.appendChild(container);
+        }
+        
+        container.appendChild(notification);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    };
+}
+
+// Enhanced error handling for your existing functions
+const originalDOMContentLoaded = document.addEventListener;
+
+// Override the DOMContentLoaded to ensure Ethers is loaded first
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🔄 Ensuring dependencies are loaded...');
+    
+    const ethersLoaded = await window.ensureEthers();
+    
+    if (!ethersLoaded) {
+        console.error('❌ Cannot proceed without Ethers.js');
+        return;
+    }
+    
+    // Continue with your existing initialization
+    if (typeof initializeApp === 'function') {
+        initializeApp();
+    }
+    
+    // Call your existing script.js functions if they exist
+    if (typeof setupChainSwitching === 'function') {
+        setupChainSwitching();
+    }
+    if (typeof setupWalletConnection === 'function') {
+        setupWalletConnection();
+    }
+    if (typeof setupFormHandlers === 'function') {
+        setupFormHandlers();
+    }
+});
+
+// Add fallback error handling for Web3 operations
+window.safeWeb3Call = async function(operation, errorMessage = 'Web3 operation failed') {
+    try {
+        if (typeof window.ethers === 'undefined') {
+            throw new Error('Ethers.js not available');
+        }
+        
+        return await operation();
+    } catch (error) {
+        console.error(`❌ ${errorMessage}:`, error);
+        showNotification(`${errorMessage}: ${error.message}`, 'error');
+        throw error;
+    }
+};
+
 // Enhanced JavaScript with smooth animations and interactions
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize app

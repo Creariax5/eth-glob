@@ -7,6 +7,37 @@
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="site/styles.css">
+    <!-- Add Ethers.js for Web3 integration with fallback -->
+    <script>
+        // Load Ethers.js with fallback
+        function loadEthers() {
+            return new Promise((resolve, reject) => {
+                // Try primary CDN
+                const script1 = document.createElement('script');
+                script1.src = 'https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js';
+                script1.onload = () => {
+                    console.log('✅ Ethers.js loaded from jsdelivr');
+                    resolve();
+                };
+                script1.onerror = () => {
+                    console.warn('⚠️ Primary CDN failed, trying backup...');
+                    // Try backup CDN
+                    const script2 = document.createElement('script');
+                    script2.src = 'https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js';
+                    script2.onload = () => {
+                        console.log('✅ Ethers.js loaded from unpkg');
+                        resolve();
+                    };
+                    script2.onerror = () => {
+                        console.error('❌ Failed to load Ethers.js from all CDNs');
+                        reject(new Error('Failed to load Ethers.js'));
+                    };
+                    document.head.appendChild(script2);
+                };
+                document.head.appendChild(script1);
+            });
+        }
+    </script>
 </head>
 <body>
     <!-- Floating Background Elements -->
@@ -49,29 +80,29 @@
 
             <div class="header-actions">
                 <div class="chain-switcher">
-                    <button class="chain-btn active" data-chain="ethereum">
+                    <button class="chain-btn active" data-chain="ethereumSepolia">
                         <span class="chain-icon">⟨Ξ⟩</span>
                         <span>Ethereum</span>
                     </button>
-                    <button class="chain-btn" data-chain="arbitrum">
+                    <button class="chain-btn" data-chain="arbitrumSepolia">
                         <span class="chain-icon">◆</span>
                         <span>Arbitrum</span>
                     </button>
-                    <button class="chain-btn" data-chain="base">
+                    <button class="chain-btn" data-chain="baseSepolia">
                         <span class="chain-icon">◇</span>
                         <span>Base</span>
                     </button>
                 </div>
                 
                 <div class="wallet-section">
-                    <div class="wallet-connected" id="wallet-connected">
+                    <div class="wallet-connected" id="wallet-connected" style="display: none;">
                         <div class="balance-info">
-                            <div class="amount">$1,245.50</div>
+                            <div class="amount" id="usdc-balance">$0.00</div>
                             <div class="label">USDC Balance</div>
                         </div>
                         <div class="wallet-address">
                             <div class="wallet-status"></div>
-                            <span id="wallet-address">0x1234...5678</span>
+                            <span id="wallet-address">0x0000...0000</span>
                         </div>
                     </div>
                     <button class="connect-btn" id="connect-wallet">
@@ -104,6 +135,19 @@
                         </div>
                     </div>
 
+                    <!-- Connection Status -->
+                    <div class="connection-status" id="connection-status" style="margin-bottom: 2rem;">
+                        <div class="status-indicator" id="status-indicator">
+                            <span class="status-dot"></span>
+                            <span id="status-text">Connecting to contracts...</span>
+                        </div>
+                        <!-- Debug Info -->
+                        <div class="debug-info" id="debug-info" style="margin-top: 1rem; font-size: 0.75rem; color: rgba(255,255,255,0.7);">
+                            <div id="debug-text">Debug info will appear here...</div>
+                            <button id="test-contracts-btn" style="margin-top: 0.5rem; padding: 0.25rem 0.5rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 0.25rem; cursor: pointer;">Test Contracts</button>
+                        </div>
+                    </div>
+
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-header">
@@ -112,7 +156,7 @@
                                 </div>
                                 <div class="stat-info">
                                     <h3>Total Portfolio</h3>
-                                    <div class="stat-value">$1,550.00</div>
+                                    <div class="stat-value" id="total-portfolio">$0.00</div>
                                 </div>
                             </div>
                             <div class="stat-footer">
@@ -131,11 +175,11 @@
                                 </div>
                                 <div class="stat-info">
                                     <h3>Insured Value</h3>
-                                    <div class="stat-value">$1,250.00</div>
+                                    <div class="stat-value" id="insured-value">$0.00</div>
                                 </div>
                             </div>
                             <div class="stat-footer">
-                                <span class="stat-subtitle">80.6% covered</span>
+                                <span class="stat-subtitle" id="coverage-percent">0% covered</span>
                                 <div class="stat-trend positive">
                                     <span class="trend-arrow">↗</span>
                                     <span>+2.1%</span>
@@ -150,7 +194,7 @@
                                 </div>
                                 <div class="stat-info">
                                     <h3>Total Yield</h3>
-                                    <div class="stat-value">7.5%</div>
+                                    <div class="stat-value" id="total-yield">0%</div>
                                 </div>
                             </div>
                             <div class="stat-footer">
@@ -169,7 +213,7 @@
                                 </div>
                                 <div class="stat-info">
                                     <h3>Rewards</h3>
-                                    <div class="stat-value">$89.23</div>
+                                    <div class="stat-value" id="total-rewards">$0.00</div>
                                 </div>
                             </div>
                             <div class="stat-footer">
@@ -186,76 +230,13 @@
                         <div class="main-panel">
                             <div class="panel-header">
                                 <h2 class="panel-title">Active Positions</h2>
-                                <a href="#" class="panel-action">View All</a>
+                                <button class="panel-action" id="refresh-positions">Refresh</button>
                             </div>
                             
-                            <div class="position-list">
-                                <div class="position-item">
+                            <div class="position-list" id="position-list">
+                                <div class="position-item loading">
                                     <div class="position-content">
-                                        <div class="position-left">
-                                            <div class="protocol-avatar">A</div>
-                                            <div class="position-details">
-                                                <h4>Aave Protocol</h4>
-                                                <div class="position-meta">
-                                                    <span class="chain-badge ethereum">⟨Ξ⟩ Ethereum</span>
-                                                    <span class="amount">$500.00</span>
-                                                    <span class="change">+2.1%</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="position-right">
-                                            <div class="apy">5.2%</div>
-                                            <div class="status insured">
-                                                <span class="icon icon-check"></span>
-                                                Insured
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="position-item">
-                                    <div class="position-content">
-                                        <div class="position-left">
-                                            <div class="protocol-avatar">C</div>
-                                            <div class="position-details">
-                                                <h4>Compound</h4>
-                                                <div class="position-meta">
-                                                    <span class="chain-badge arbitrum">◆ Arbitrum</span>
-                                                    <span class="amount">$750.00</span>
-                                                    <span class="change">+1.8%</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="position-right">
-                                            <div class="apy">4.8%</div>
-                                            <div class="status insured">
-                                                <span class="icon icon-check"></span>
-                                                Insured
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="position-item">
-                                    <div class="position-content">
-                                        <div class="position-left">
-                                            <div class="protocol-avatar">U</div>
-                                            <div class="position-details">
-                                                <h4>Uniswap V3</h4>
-                                                <div class="position-meta">
-                                                    <span class="chain-badge base">◇ Base</span>
-                                                    <span class="amount">$300.00</span>
-                                                    <span class="change">+5.2%</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="position-right">
-                                            <div class="apy">12.5%</div>
-                                            <div class="status uninsured">
-                                                <span class="icon icon-warning"></span>
-                                                Uninsured
-                                            </div>
-                                        </div>
+                                        <div class="loading-text">Loading positions...</div>
                                     </div>
                                 </div>
                             </div>
@@ -285,29 +266,28 @@
                             </div>
 
                             <div class="sidebar-card">
-                                <h3 class="sidebar-title">Market Overview</h3>
-                                <div class="protocol-grid">
-                                    <div class="protocol-card">
-                                        <div class="protocol-header">
-                                            <div class="protocol-left">
-                                                <div class="protocol-icon">A</div>
-                                                <div class="protocol-info">
-                                                    <h4>Aave</h4>
-                                                    <div class="tvl">$12.3B TVL</div>
-                                                </div>
-                                            </div>
-                                            <div class="protocol-right">
-                                                <div class="protocol-apy">5.2%</div>
-                                                <div class="protocol-label">APY</div>
-                                            </div>
-                                        </div>
-                                        <div class="protocol-footer">
-                                            <div class="risk-badge low">Low Risk</div>
-                                            <div class="protocol-features">
-                                                <span class="icon icon-check"></span>
-                                                Cross-chain
-                                            </div>
-                                        </div>
+                                <h3 class="sidebar-title">Protocol Health</h3>
+                                <div class="protocol-grid" id="protocol-health">
+                                    <div class="protocol-card loading">
+                                        <div class="loading-text">Loading protocols...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sidebar-card">
+                                <h3 class="sidebar-title">Network Status</h3>
+                                <div class="network-status" id="network-status">
+                                    <div class="network-item">
+                                        <span class="network-name">Ethereum</span>
+                                        <span class="network-indicator" id="ethereum-status">🟡</span>
+                                    </div>
+                                    <div class="network-item">
+                                        <span class="network-name">Arbitrum</span>
+                                        <span class="network-indicator" id="arbitrum-status">🟡</span>
+                                    </div>
+                                    <div class="network-item">
+                                        <span class="network-name">Base</span>
+                                        <span class="network-indicator" id="base-status">🟡</span>
                                     </div>
                                 </div>
                             </div>
@@ -318,6 +298,688 @@
         </div>
     </main>
 
+    <!-- Load Contract ABIs (Generated from your compiled contracts) -->
+    <script src="site/abis.js"></script>
+
+    <!-- Global State and Contract Management -->
+    <script>
+        // Global application state
+        window.YieldGuard = {
+            currentChain: 'ethereumSepolia',
+            provider: null,
+            signer: null,
+            contracts: {},
+            deployments: {},
+            userAddress: null,
+            isConnected: false
+        };
+
+        // Chain configurations
+        window.ChainConfigs = {
+            ethereumSepolia: {
+                chainId: '0xaa36a7',
+                chainName: 'Ethereum Sepolia',
+                displayName: 'Ethereum',
+                rpcUrl: 'https://sepolia.infura.io/v3/YOUR_INFURA_KEY',
+                blockExplorer: 'https://sepolia.etherscan.io'
+            },
+            arbitrumSepolia: {
+                chainId: '0x66eeb',
+                chainName: 'Arbitrum Sepolia',
+                displayName: 'Arbitrum',
+                rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc',
+                blockExplorer: 'https://sepolia.arbiscan.io'
+            },
+            baseSepolia: {
+                chainId: '0x14a34',
+                chainName: 'Base Sepolia',
+                displayName: 'Base',
+                rpcUrl: 'https://sepolia.base.org',
+                blockExplorer: 'https://sepolia.basescan.org'
+            }
+        };
+
+        // Debug function
+        function updateDebugInfo(message) {
+            const debugText = document.getElementById('debug-text');
+            if (debugText) {
+                debugText.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+                debugText.scrollTop = debugText.scrollHeight;
+            }
+        }
+
+        // Test contracts function
+        async function testContracts() {
+            updateDebugInfo('🧪 Testing contract connections...');
+            
+            if (!window.YieldGuard.contracts.usdcManager) {
+                updateDebugInfo('❌ USDCManager not initialized');
+                return;
+            }
+
+            try {
+                // Test simple calls first
+                updateDebugInfo('📞 Testing contract address...');
+                const address = window.YieldGuard.contracts.usdcManager.address || await window.YieldGuard.contracts.usdcManager.getAddress();
+                updateDebugInfo(`✅ USDCManager address: ${address}`);
+
+                // Test if contract exists on chain
+                updateDebugInfo('📞 Testing contract code...');
+                const code = await window.YieldGuard.provider.getCode(address);
+                if (code === '0x') {
+                    updateDebugInfo('❌ No contract code found at address - contract not deployed?');
+                    return;
+                }
+                updateDebugInfo(`✅ Contract code found: ${code.length} bytes`);
+
+                // Check network
+                const network = await window.YieldGuard.provider.getNetwork();
+                updateDebugInfo(`🌐 Connected to network: ${network.name} (${network.chainId})`);
+
+                // Test individual functions with detailed error reporting
+                updateDebugInfo('📞 Testing getPoolStats...');
+                try {
+                    const poolStats = await window.YieldGuard.contracts.usdcManager.getPoolStats();
+                    updateDebugInfo(`✅ Pool stats: totalBalance=${poolStats[0]}, totalClaims=${poolStats[1]}, totalPremiums=${poolStats[2]}`);
+                } catch (error) {
+                    updateDebugInfo(`❌ getPoolStats failed: ${error.message}`);
+                    if (error.data) {
+                        updateDebugInfo(`   Error data: ${error.data}`);
+                    }
+                    if (error.code) {
+                        updateDebugInfo(`   Error code: ${error.code}`);
+                    }
+                }
+
+                updateDebugInfo('📞 Testing userDeposits...');
+                try {
+                    const userDeposits = await window.YieldGuard.contracts.usdcManager.userDeposits(window.YieldGuard.userAddress);
+                    updateDebugInfo(`✅ User deposits: ${userDeposits.toString()}`);
+                } catch (error) {
+                    updateDebugInfo(`❌ userDeposits failed: ${error.message}`);
+                }
+
+                updateDebugInfo('📞 Testing usdcToken...');
+                try {
+                    const usdcToken = await window.YieldGuard.contracts.usdcManager.usdcToken();
+                    updateDebugInfo(`✅ USDC token address: ${usdcToken}`);
+                } catch (error) {
+                    updateDebugInfo(`❌ usdcToken failed: ${error.message}`);
+                }
+
+                // Test other contracts if available
+                if (window.YieldGuard.contracts.crossChainInsurance) {
+                    updateDebugInfo('📞 Testing SimpleCrossChainInsurance...');
+                    try {
+                        const userCoverage = await window.YieldGuard.contracts.crossChainInsurance.getUserCoverage(window.YieldGuard.userAddress);
+                        updateDebugInfo(`✅ User coverage: ${userCoverage.toString()}`);
+                    } catch (error) {
+                        updateDebugInfo(`❌ getUserCoverage failed: ${error.message}`);
+                    }
+                }
+
+                if (window.YieldGuard.contracts.priceMonitor) {
+                    updateDebugInfo('📞 Testing SimplePriceMonitor...');
+                    try {
+                        const protocolCount = await window.YieldGuard.contracts.priceMonitor.getProtocolCount();
+                        updateDebugInfo(`✅ Protocol count: ${protocolCount.toString()}`);
+                    } catch (error) {
+                        updateDebugInfo(`❌ getProtocolCount failed: ${error.message}`);
+                    }
+                }
+
+            } catch (error) {
+                updateDebugInfo(`❌ Contract test failed: ${error.message}`);
+                console.error('Contract test error:', error);
+            }
+        }
+
+        // Load deployment configurations
+        async function loadDeployments() {
+            try {
+                const chains = ['ethereumSepolia', 'arbitrumSepolia', 'baseSepolia'];
+                
+                for (const chain of chains) {
+                    try {
+                        const response = await fetch(`./deployments/${chain}.json`);
+                        if (response.ok) {
+                            const deployment = await response.json();
+                            window.YieldGuard.deployments[chain] = deployment;
+                            console.log(`✅ Loaded ${chain} deployment:`, deployment);
+                            updateDebugInfo(`✅ Loaded ${chain} deployment`);
+                        } else {
+                            console.warn(`⚠️ Could not load ${chain} deployment`);
+                            updateDebugInfo(`⚠️ Could not load ${chain} deployment`);
+                        }
+                    } catch (error) {
+                        console.warn(`⚠️ Error loading ${chain} deployment:`, error.message);
+                        updateDebugInfo(`⚠️ Error loading ${chain}: ${error.message}`);
+                    }
+                }
+                
+                return Object.keys(window.YieldGuard.deployments).length > 0;
+            } catch (error) {
+                console.error('❌ Failed to load deployments:', error);
+                updateDebugInfo(`❌ Failed to load deployments: ${error.message}`);
+                return false;
+            }
+        }
+
+        // Initialize contracts for current chain
+        async function initializeContracts() {
+            const currentDeployment = window.YieldGuard.deployments[window.YieldGuard.currentChain];
+            
+            if (!currentDeployment || !window.YieldGuard.signer) {
+                console.log('⚠️ Missing deployment or signer for contract initialization');
+                updateDebugInfo('⚠️ Missing deployment or signer');
+                return false;
+            }
+
+            // Check if ABIs are loaded
+            if (!window.ContractABIs) {
+                console.error('❌ Contract ABIs not loaded');
+                updateDebugInfo('❌ Contract ABIs not loaded - run extractABIs script');
+                return false;
+            }
+
+            try {
+                const contracts = currentDeployment.contracts;
+                updateDebugInfo(`🔗 Initializing contracts for ${window.YieldGuard.currentChain}`);
+                updateDebugInfo(`📋 Contract addresses: ${JSON.stringify(contracts)}`);
+
+                // Initialize contracts with correct names matching your artifacts
+                window.YieldGuard.contracts = {};
+
+                if (window.ContractABIs.SimplePriceMonitor && contracts.priceMonitor) {
+                    window.YieldGuard.contracts.priceMonitor = new ethers.Contract(
+                        contracts.priceMonitor,
+                        window.ContractABIs.SimplePriceMonitor,  // Changed from PriceMonitor
+                        window.YieldGuard.signer
+                    );
+                    updateDebugInfo('✅ SimplePriceMonitor initialized');
+                }
+
+                if (window.ContractABIs.USDCManager && contracts.usdcManager) {
+                    window.YieldGuard.contracts.usdcManager = new ethers.Contract(
+                        contracts.usdcManager,
+                        window.ContractABIs.USDCManager,
+                        window.YieldGuard.signer
+                    );
+                    updateDebugInfo('✅ USDCManager initialized');
+                }
+
+                if (window.ContractABIs.SimpleCrossChainInsurance && contracts.crossChainInsurance) {
+                    window.YieldGuard.contracts.crossChainInsurance = new ethers.Contract(
+                        contracts.crossChainInsurance,
+                        window.ContractABIs.SimpleCrossChainInsurance,
+                        window.YieldGuard.signer
+                    );
+                    updateDebugInfo('✅ SimpleCrossChainInsurance initialized');
+                }
+
+                console.log('✅ Contracts initialized for', window.YieldGuard.currentChain);
+                updateDebugInfo(`✅ All contracts initialized successfully`);
+                return true;
+            } catch (error) {
+                console.error('❌ Failed to initialize contracts:', error);
+                updateDebugInfo(`❌ Failed to initialize contracts: ${error.message}`);
+                return false;
+            }
+        }
+
+        // Connect wallet function
+        async function connectWallet() {
+            try {
+                if (typeof window.ethers === 'undefined') {
+                    throw new Error('Ethers.js not loaded. Please refresh the page.');
+                }
+
+                if (typeof window.ethereum === 'undefined') {
+                    throw new Error('MetaMask not installed');
+                }
+
+                updateDebugInfo('🔌 Connecting wallet...');
+
+                // Request account access
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+
+                // Initialize provider and signer
+                window.YieldGuard.provider = new ethers.providers.Web3Provider(window.ethereum);
+                window.YieldGuard.signer = window.YieldGuard.provider.getSigner();
+                window.YieldGuard.userAddress = accounts[0];
+                window.YieldGuard.isConnected = true;
+
+                updateDebugInfo(`✅ Wallet connected: ${accounts[0]}`);
+
+                // Initialize contracts
+                await initializeContracts();
+
+                // Update UI
+                updateWalletUI();
+                await updateDashboardData();
+
+                console.log('✅ Wallet connected:', accounts[0]);
+                showNotification('Wallet connected successfully!', 'success');
+
+                return accounts[0];
+            } catch (error) {
+                console.error('❌ Wallet connection failed:', error);
+                updateDebugInfo(`❌ Wallet connection failed: ${error.message}`);
+                showNotification(`Wallet connection failed: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        // Update wallet UI
+        function updateWalletUI() {
+            const connectBtn = document.getElementById('connect-wallet');
+            const walletConnected = document.getElementById('wallet-connected');
+            const walletAddress = document.getElementById('wallet-address');
+
+            if (window.YieldGuard.isConnected && window.YieldGuard.userAddress) {
+                // Hide connect button
+                connectBtn.style.display = 'none';
+                
+                // Show connected wallet
+                walletConnected.style.display = 'flex';
+                
+                // Update address
+                const shortAddress = `${window.YieldGuard.userAddress.slice(0, 6)}...${window.YieldGuard.userAddress.slice(-4)}`;
+                walletAddress.textContent = shortAddress;
+                
+                // Update connection status
+                updateConnectionStatus('connected', 'Connected to contracts');
+            } else {
+                connectBtn.style.display = 'flex';
+                walletConnected.style.display = 'none';
+                updateConnectionStatus('disconnected', 'Not connected');
+            }
+        }
+
+        // Update connection status indicator
+        function updateConnectionStatus(status, message) {
+            const statusIndicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+            
+            if (statusIndicator && statusText) {
+                statusIndicator.className = `status-indicator ${status}`;
+                statusText.textContent = message;
+            }
+        }
+
+        // Update dashboard with real data (with better error handling)
+        async function updateDashboardData() {
+            if (!window.YieldGuard.isConnected || !window.YieldGuard.contracts.usdcManager) {
+                console.log('⚠️ Not connected or contracts not initialized');
+                updateDebugInfo('⚠️ Not connected or contracts not initialized');
+                return;
+            }
+
+            try {
+                updateDebugInfo('📊 Updating dashboard data...');
+
+                // Test individual contract calls with detailed error handling
+                let poolStats, userDeposits, userCoverage;
+
+                try {
+                    updateDebugInfo('📞 Calling getPoolStats...');
+                    poolStats = await window.YieldGuard.contracts.usdcManager.getPoolStats();
+                    updateDebugInfo(`✅ Pool stats received: ${poolStats.toString()}`);
+                } catch (error) {
+                    updateDebugInfo(`❌ getPoolStats failed: ${error.message}`);
+                    throw error;
+                }
+
+                try {
+                    updateDebugInfo('📞 Calling userDeposits...');
+                    userDeposits = await window.YieldGuard.contracts.usdcManager.userDeposits(window.YieldGuard.userAddress);
+                    updateDebugInfo(`✅ User deposits: ${userDeposits.toString()}`);
+                } catch (error) {
+                    updateDebugInfo(`❌ userDeposits failed: ${error.message}`);
+                    userDeposits = ethers.BigNumber.from(0);
+                }
+
+                try {
+                    updateDebugInfo('📞 Calling getUserCoverage...');
+                    userCoverage = await window.YieldGuard.contracts.crossChainInsurance.getUserCoverage(window.YieldGuard.userAddress);
+                    updateDebugInfo(`✅ User coverage: ${userCoverage.toString()}`);
+                } catch (error) {
+                    updateDebugInfo(`❌ getUserCoverage failed: ${error.message}`);
+                    userCoverage = ethers.BigNumber.from(0);
+                }
+
+                // Update UI elements
+                const totalPortfolio = ethers.utils.formatUnits(userDeposits, 6); // USDC has 6 decimals
+                const insuredValue = ethers.utils.formatUnits(userCoverage, 6);
+                
+                document.getElementById('total-portfolio').textContent = `$${parseFloat(totalPortfolio).toFixed(2)}`;
+                document.getElementById('insured-value').textContent = `$${parseFloat(insuredValue).toFixed(2)}`;
+                
+                // Calculate coverage percentage
+                const coveragePercent = userDeposits.gt(0) ? (userCoverage.mul(100).div(userDeposits)).toNumber() : 0;
+                document.getElementById('coverage-percent').textContent = `${coveragePercent}% covered`;
+
+                // Update USDC balance in header
+                document.getElementById('usdc-balance').textContent = `$${parseFloat(totalPortfolio).toFixed(2)}`;
+
+                console.log('✅ Dashboard data updated');
+                updateDebugInfo('✅ Dashboard data updated successfully');
+            } catch (error) {
+                console.error('❌ Failed to update dashboard data:', error);
+                updateDebugInfo(`❌ Dashboard update failed: ${error.message}`);
+                showNotification('Failed to load portfolio data. Check console for details.', 'error');
+            }
+        }
+
+        // Show notification function
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <span class="notification-message">${message}</span>
+                <button class="notification-close">&times;</button>
+            `;
+
+            // Add to page
+            document.body.appendChild(notification);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+
+            // Manual close
+            notification.querySelector('.notification-close').onclick = () => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            };
+        }
+
+        // Initialize application
+        async function initializeApp() {
+            console.log('🚀 Initializing YieldGuard DApp...');
+            updateDebugInfo('🚀 Initializing YieldGuard DApp...');
+            
+            // Update status
+            updateConnectionStatus('loading', 'Loading dependencies...');
+            
+            // Wait for Ethers.js to load
+            try {
+                if (typeof window.ethers === 'undefined') {
+                    console.log('📦 Loading Ethers.js...');
+                    updateDebugInfo('📦 Loading Ethers.js...');
+                    await loadEthers();
+                }
+                console.log('✅ Ethers.js ready');
+                updateDebugInfo('✅ Ethers.js ready');
+            } catch (error) {
+                updateConnectionStatus('error', 'Failed to load Web3 dependencies');
+                updateDebugInfo(`❌ Failed to load Ethers.js: ${error.message}`);
+                showNotification('Failed to load required dependencies. Please refresh the page.', 'error');
+                return;
+            }
+            
+            // Check ABIs
+            if (!window.ContractABIs) {
+                updateConnectionStatus('error', 'Contract ABIs not loaded');
+                updateDebugInfo('❌ Contract ABIs not loaded. Please run: node scripts/extractABIs.js');
+                showNotification('Contract ABIs not found. Please run the ABI extraction script.', 'error');
+                return;
+            } else {
+                updateDebugInfo(`✅ Contract ABIs loaded: ${Object.keys(window.ContractABIs).join(', ')}`);
+                // Check if we have the expected ABIs
+                const expectedABIs = ['SimplePriceMonitor', 'USDCManager', 'SimpleCrossChainInsurance'];
+                const missingABIs = expectedABIs.filter(name => !window.ContractABIs[name]);
+                if (missingABIs.length > 0) {
+                    updateDebugInfo(`⚠️ Missing ABIs: ${missingABIs.join(', ')}`);
+                }
+            }
+            
+            // Update status
+            updateConnectionStatus('loading', 'Loading deployments...');
+            
+            // Load deployments
+            const deploymentsLoaded = await loadDeployments();
+            
+            if (!deploymentsLoaded) {
+                updateConnectionStatus('error', 'Failed to load contract deployments');
+                updateDebugInfo('❌ Failed to load contract deployments');
+                showNotification('Failed to load contract deployments. Please check if contracts are deployed.', 'error');
+                return;
+            }
+
+            // Check if already connected
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        // Auto-connect if previously connected
+                        await connectWallet();
+                    } else {
+                        updateConnectionStatus('ready', 'Ready to connect wallet');
+                        updateDebugInfo('Ready to connect wallet');
+                    }
+                } catch (error) {
+                    console.log('No previous connection found');
+                    updateConnectionStatus('ready', 'Ready to connect wallet');
+                    updateDebugInfo('No previous connection found');
+                }
+            } else {
+                updateConnectionStatus('error', 'MetaMask not found');
+                updateDebugInfo('❌ MetaMask not found');
+                showNotification('Please install MetaMask to use YieldGuard', 'error');
+            }
+
+            // Setup event handlers
+            setupEventHandlers();
+            
+            console.log('✅ YieldGuard DApp initialized');
+            updateDebugInfo('✅ YieldGuard DApp initialized');
+        }
+
+        // Setup event handlers
+        function setupEventHandlers() {
+            // Connect wallet button
+            document.getElementById('connect-wallet').addEventListener('click', connectWallet);
+
+            // Test contracts button
+            document.getElementById('test-contracts-btn').addEventListener('click', testContracts);
+
+            // Chain switching
+            document.querySelectorAll('.chain-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const newChain = this.dataset.chain;
+                    
+                    if (newChain !== window.YieldGuard.currentChain) {
+                        window.YieldGuard.currentChain = newChain;
+                        updateDebugInfo(`🔄 Switching to ${newChain}`);
+                        
+                        // Update active button
+                        document.querySelectorAll('.chain-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        // Reinitialize contracts and update data
+                        if (window.YieldGuard.isConnected) {
+                            await initializeContracts();
+                            await updateDashboardData();
+                        }
+                        
+                        showNotification(`Switched to ${this.textContent.trim()}`, 'success');
+                    }
+                });
+            });
+
+            // Refresh positions
+            document.getElementById('refresh-positions').addEventListener('click', updateDashboardData);
+
+            // MetaMask events
+            if (typeof window.ethereum !== 'undefined') {
+                window.ethereum.on('accountsChanged', function(accounts) {
+                    if (accounts.length === 0) {
+                        // User disconnected
+                        window.YieldGuard.isConnected = false;
+                        window.YieldGuard.userAddress = null;
+                        updateWalletUI();
+                        updateConnectionStatus('disconnected', 'Wallet disconnected');
+                        updateDebugInfo('🔌 Wallet disconnected');
+                    } else {
+                        // Account changed
+                        window.YieldGuard.userAddress = accounts[0];
+                        updateWalletUI();
+                        updateDashboardData();
+                        updateDebugInfo(`🔄 Account changed to: ${accounts[0]}`);
+                    }
+                });
+
+                window.ethereum.on('chainChanged', function(chainId) {
+                    updateDebugInfo(`🔄 Chain changed to: ${chainId}`);
+                    // Reload page on chain change for simplicity
+                    window.location.reload();
+                });
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Wait a moment for any external scripts to load
+            setTimeout(initializeApp, 100);
+        });
+    </script>
+
+    <!-- Load the existing script.js for additional functionality -->
     <script src="site/script.js"></script>
+
+    <!-- Additional CSS for new elements -->
+    <style>
+        .connection-status {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .status-indicator .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #fbbf24;
+        }
+
+        .status-indicator.connected .status-dot {
+            background: #10b981;
+        }
+
+        .status-indicator.error .status-dot {
+            background: #ef4444;
+        }
+
+        .status-indicator.loading .status-dot {
+            background: #3b82f6;
+            animation: pulse 2s infinite;
+        }
+
+        .debug-info {
+            max-height: 150px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            text-align: left;
+        }
+
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid #3b82f6;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            max-width: 300px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.success {
+            border-left-color: #10b981;
+        }
+
+        .notification.error {
+            border-left-color: #ef4444;
+        }
+
+        .notification.warning {
+            border-left-color: #fbbf24;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+
+        .network-status {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .network-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .network-name {
+            flex: 1;
+        }
+
+        .loading-text {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-style: italic;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
 </body>
 </html>
