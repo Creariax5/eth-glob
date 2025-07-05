@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boost - YieldGuard.</title>
+    <link rel="icon" type="image/png" href="../assets/icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Floating Background Elements -->
+    <div class="floating-orb floating-orb-1"></div>
+    <div class="floating-orb floating-orb-2"></div>
+    <div class="floating-orb floating-orb-3"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <span class="icon icon-shield"></span>
+                    </div>
+                    <div class="logo-text">
+                        <h1>YieldGuard.</h1>
+                    </div>
+                </div>
+                
+                <nav class="nav">
+                    <a href="../index.html" class="nav-item">
+                        <span class="icon icon-chart"></span>
+                        Overview
+                    </a>
+                    <a href="safepool.html" class="nav-item">
+                        <span class="icon icon-shield"></span>
+                        Safe Pool
+                    </a>
+                    <a href="boost.html" class="nav-item active">
+                        <span class="icon icon-zap"></span>
+                        Boost
+                    </a>
+                    <a href="claims.html" class="nav-item">
+                        <span class="icon icon-target"></span>
+                        Claims
+                    </a>
+                </nav>
+            </div>
+
+            <div class="header-actions">
+                <div class="chain-switcher">
+                    <button class="chain-btn active" data-chain="ethereum">
+                        <span class="chain-icon">⟨Ξ⟩</span>
+                        <span>Ethereum</span>
+                    </button>
+                    <button class="chain-btn" data-chain="arbitrum">
+                        <span class="chain-icon">◆</span>
+                        <span>Arbitrum</span>
+                    </button>
+                    <button class="chain-btn" data-chain="base">
+                        <span class="chain-icon">◇</span>
+                        <span>Base</span>
+                    </button>
+                </div>
+                
+                <div class="wallet-section">
+                    <div class="wallet-connected" id="wallet-connected">
+                        <div class="balance-info">
+                            <div class="amount">$1,245.50</div>
+                            <div class="label">USDC Balance</div>
+                        </div>
+                        <div class="wallet-address">
+                            <div class="wallet-status"></div>
+                            <span id="wallet-address">0x1234...5678</span>
+                        </div>
+                    </div>
+                    <button class="connect-btn" id="connect-wallet">
+                        <span class="icon icon-wallet"></span>
+                        <span>Connect Wallet</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <script src="script.js"></script>
+</body>
+</html>
