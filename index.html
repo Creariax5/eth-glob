@@ -23,23 +23,23 @@
     
     <!-- Quick Demo Guide -->
     <div class="section" style="background-color: #e7f3ff; border-color: #007bff;">
-        <h2>🎯 Fixed Demo with Real Contract Functions</h2>
+        <h2>🎯 Fixed Demo for Vercel Deployment</h2>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div>
-                <strong>🚀 Working Functions:</strong><br>
-                ✅ Contract connection & stats<br>
-                ✅ USDC balance & approval<br>
-                ✅ Insurance purchase (real function)<br>
-                ✅ Cross-chain claims (LayerZero)<br>
-                <em>All functions match deployed contracts</em>
+                <strong>🚀 Vercel-Optimized Functions:</strong><br>
+                ✅ Fixed network detection issues<br>
+                ✅ Fresh provider connections<br>
+                ✅ Better error handling<br>
+                ✅ Auto-refresh on network changes<br>
+                <em>Works reliably on hosted platforms</em>
             </div>
             <div>
-                <strong>⚡ Quick Test Sequence:</strong><br>
-                1. Connect → Load contracts<br>
-                2. Check USDC → Approve if needed<br>
-                3. Purchase insurance → Real transaction<br>
-                4. Trigger cross-chain claim<br>
-                <em>Proves all 3 bounty integrations</em>
+                <strong>⚡ If You Get Network Errors:</strong><br>
+                1. Refresh the page<br>
+                2. Reconnect MetaMask wallet<br>
+                3. Switch to correct testnet<br>
+                4. Try again<br>
+                <em>Network caching issues resolved</em>
             </div>
         </div>
     </div>
@@ -132,6 +132,13 @@
         <div id="claim-status"></div>
     </div>
 
+    <!-- Network Debug -->
+    <div class="section" style="background-color: #f8f9fa; border-color: #dee2e6;">
+        <h2>🔧 Network Debug Info</h2>
+        <button onclick="debugNetwork()" style="background-color: #6c757d; color: white;">Check Network Status</button>
+        <div id="debug-info"></div>
+    </div>
+
     <!-- Live Contract Data -->
     <div class="section">
         <h2>📊 Live Contract Data</h2>
@@ -186,17 +193,31 @@
                 }
 
                 await window.ethereum.request({ method: 'eth_requestAccounts' });
-                provider = new ethers.providers.Web3Provider(window.ethereum);
+                
+                // Force fresh provider connection
+                provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+                
+                // Listen for network changes
+                provider.on("network", (newNetwork, oldNetwork) => {
+                    if (oldNetwork) {
+                        console.log('Network changed, refreshing...');
+                        window.location.reload();
+                    }
+                });
+                
                 signer = provider.getSigner();
                 currentAccount = await signer.getAddress();
                 
-                const network = await provider.getNetwork();
-                updateStatus(`Connected: ${currentAccount} on chain ${network.chainId}`, 'success');
+                // Get current network directly from MetaMask
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const networkChainId = parseInt(chainId, 16);
                 
-                // Detect current chain and set currentChain
-                const chainId = `0x${network.chainId.toString(16)}`;
+                updateStatus(`Connected: ${currentAccount} on chain ${networkChainId}`, 'success');
+                
+                // Detect current chain from the actual chainId
+                currentChain = null;
                 for (const [chainName, config] of Object.entries(CHAINS)) {
-                    if (config.chainId === chainId) {
+                    if (parseInt(config.chainId, 16) === networkChainId) {
                         currentChain = chainName;
                         break;
                     }
@@ -205,7 +226,7 @@
                 document.getElementById('wallet-info').innerHTML = `
                     <div class="contract-info">
                         <strong>Account:</strong> ${currentAccount}<br>
-                        <strong>Chain ID:</strong> ${network.chainId} (${currentChain || 'Unknown'})<br>
+                        <strong>Chain ID:</strong> ${networkChainId} (${currentChain || 'Unsupported'})<br>
                         <strong>Balance:</strong> ${ethers.utils.formatEther(await signer.getBalance())} ETH<br>
                         <br>
                         ${currentChain ? 
@@ -247,6 +268,15 @@
             }
 
             try {
+                // Verify we're on the right network by checking MetaMask directly
+                const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const expectedChainId = CHAINS[currentChain].chainId;
+                
+                if (currentChainId !== expectedChainId) {
+                    updateStatus(`Wrong network! Expected ${currentChain}, please switch in MetaMask`, 'error');
+                    return;
+                }
+
                 const deployment = DEPLOYMENTS[currentChain];
                 
                 // ✅ CORRECT ABIs MATCHING YOUR ACTUAL CONTRACTS
@@ -277,11 +307,15 @@
                     "function transfer(address to, uint256 amount) external returns (bool)"
                 ];
 
-                // Connect to contracts using the correct ABIs
-                contracts.priceMonitor = new ethers.Contract(deployment.priceMonitor, priceMonitorABI, signer);
-                contracts.usdcManager = new ethers.Contract(deployment.usdcManager, usdcManagerABI, signer);
-                contracts.crossChainInsurance = new ethers.Contract(deployment.crossChainInsurance, crossChainABI, signer);
-                contracts.usdc = new ethers.Contract(deployment.usdc, usdcABI, signer);
+                // Create fresh signer to avoid network caching issues
+                const freshProvider = new ethers.providers.Web3Provider(window.ethereum, "any");
+                const freshSigner = freshProvider.getSigner();
+
+                // Connect to contracts using the fresh signer
+                contracts.priceMonitor = new ethers.Contract(deployment.priceMonitor, priceMonitorABI, freshSigner);
+                contracts.usdcManager = new ethers.Contract(deployment.usdcManager, usdcManagerABI, freshSigner);
+                contracts.crossChainInsurance = new ethers.Contract(deployment.crossChainInsurance, crossChainABI, freshSigner);
+                contracts.usdc = new ethers.Contract(deployment.usdc, usdcABI, freshSigner);
                 
                 document.getElementById('contract-status').innerHTML = `
                     <div class="contract-info">
@@ -311,7 +345,7 @@
             }
         }
 
-        // USDC Helper Functions
+        // USDC Helper Functions - Fixed for Vercel
         async function checkUSDCBalance() {
             if (!contracts.usdc || !currentAccount) {
                 updateStatus('Connect wallet and load contracts first', 'warning');
@@ -319,18 +353,39 @@
             }
 
             try {
-                const balance = await contracts.usdc.balanceOf(currentAccount);
+                // Verify network before making calls
+                const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const expectedChainId = CHAINS[currentChain].chainId;
+                
+                if (currentChainId !== expectedChainId) {
+                    updateStatus(`Wrong network! Switch to ${currentChain} in MetaMask`, 'error');
+                    return;
+                }
+
+                // Create fresh provider/signer to avoid network caching
+                const freshProvider = new ethers.providers.Web3Provider(window.ethereum, "any");
+                const freshSigner = freshProvider.getSigner();
+                const deployment = DEPLOYMENTS[currentChain];
+                
+                const usdcABI = [
+                    "function balanceOf(address owner) external view returns (uint256)",
+                    "function allowance(address owner, address spender) external view returns (uint256)"
+                ];
+                
+                const freshUsdcContract = new ethers.Contract(deployment.usdc, usdcABI, freshProvider);
+                
+                const balance = await freshUsdcContract.balanceOf(currentAccount);
                 const balanceFormatted = ethers.utils.formatUnits(balance, 6);
                 
-                const allowance = await contracts.usdc.allowance(currentAccount, contracts.usdcManager.address);
+                const allowance = await freshUsdcContract.allowance(currentAccount, deployment.usdcManager);
                 const allowanceFormatted = ethers.utils.formatUnits(allowance, 6);
 
                 document.getElementById('usdc-status').innerHTML = `
                     <div class="contract-info">
-                        <strong>💰 USDC Status:</strong><br>
+                        <strong>💰 USDC Status (${currentChain}):</strong><br>
                         Your Balance: ${balanceFormatted} USDC<br>
                         Approved Amount: ${allowanceFormatted} USDC<br>
-                        Contract Address: ${contracts.usdc.address}<br>
+                        Contract Address: ${deployment.usdc}<br>
                         <br>
                         ${parseFloat(balanceFormatted) > 0 ? 
                             '✅ You have USDC!' : 
@@ -347,6 +402,16 @@
 
             } catch (error) {
                 updateStatus(`USDC check failed: ${error.message}`, 'error');
+                document.getElementById('usdc-status').innerHTML = `
+                    <div class="contract-info" style="background-color: #f8d7da;">
+                        <strong>❌ USDC check failed:</strong><br>
+                        ${error.message}<br><br>
+                        <strong>Common fixes:</strong><br>
+                        • Refresh page and reconnect wallet<br>
+                        • Switch to correct network in MetaMask<br>
+                        • Check internet connection
+                    </div>
+                `;
             }
         }
 
@@ -357,10 +422,30 @@
             }
 
             try {
+                // Verify network
+                const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const expectedChainId = CHAINS[currentChain].chainId;
+                
+                if (currentChainId !== expectedChainId) {
+                    updateStatus(`Wrong network! Switch to ${currentChain} in MetaMask`, 'error');
+                    return;
+                }
+                
                 updateStatus('Approving USDC spending...', 'warning');
                 
+                // Create fresh signer for transaction
+                const freshProvider = new ethers.providers.Web3Provider(window.ethereum, "any");
+                const freshSigner = freshProvider.getSigner();
+                const deployment = DEPLOYMENTS[currentChain];
+                
+                const usdcABI = [
+                    "function approve(address spender, uint256 amount) external returns (bool)"
+                ];
+                
+                const freshUsdcContract = new ethers.Contract(deployment.usdc, usdcABI, freshSigner);
+                
                 const approveAmount = ethers.utils.parseUnits("1000000", 6);
-                const tx = await contracts.usdc.approve(contracts.usdcManager.address, approveAmount);
+                const tx = await freshUsdcContract.approve(deployment.usdcManager, approveAmount);
                 
                 document.getElementById('usdc-status').innerHTML = `
                     <div class="contract-info">
@@ -376,6 +461,16 @@
 
             } catch (error) {
                 updateStatus(`USDC approval failed: ${error.message}`, 'error');
+                document.getElementById('usdc-status').innerHTML = `
+                    <div class="contract-info" style="background-color: #f8d7da;">
+                        <strong>❌ Approval failed:</strong><br>
+                        ${error.message}<br><br>
+                        <strong>Try these fixes:</strong><br>
+                        • Refresh page and reconnect wallet<br>
+                        • Make sure you're on ${currentChain}<br>
+                        • Check if you have enough ETH for gas
+                    </div>
+                `;
             }
         }
 
@@ -572,6 +667,51 @@
             }
         }
 
+        // Debug function for Vercel issues
+        async function debugNetwork() {
+            try {
+                const debugInfo = [];
+                
+                if (window.ethereum) {
+                    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    
+                    debugInfo.push(`MetaMask Chain ID: ${chainId} (${parseInt(chainId, 16)})`);
+                    debugInfo.push(`MetaMask Account: ${accounts[0] || 'None'}`);
+                } else {
+                    debugInfo.push('❌ MetaMask not detected');
+                }
+                
+                if (provider) {
+                    try {
+                        const network = await provider.getNetwork();
+                        debugInfo.push(`Provider Network: ${network.name} (${network.chainId})`);
+                    } catch (e) {
+                        debugInfo.push(`❌ Provider error: ${e.message}`);
+                    }
+                }
+                
+                debugInfo.push(`Current Chain Variable: ${currentChain || 'None'}`);
+                debugInfo.push(`Current Account Variable: ${currentAccount || 'None'}`);
+                debugInfo.push(`Contracts Loaded: ${Object.keys(contracts).length > 0 ? 'Yes' : 'No'}`);
+                
+                document.getElementById('debug-info').innerHTML = `
+                    <div class="contract-info" style="margin-top: 10px;">
+                        <strong>🔍 Debug Information:</strong><br>
+                        ${debugInfo.join('<br>')}
+                    </div>
+                `;
+                
+            } catch (error) {
+                document.getElementById('debug-info').innerHTML = `
+                    <div class="contract-info" style="background-color: #f8d7da; margin-top: 10px;">
+                        <strong>❌ Debug Error:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+
         async function refreshData() {
             if (!contracts.usdcManager) {
                 document.getElementById('live-data').innerHTML = `
@@ -624,6 +764,27 @@
                 refreshData();
             }
         }, 30000);
+
+        // Listen for MetaMask network/account changes
+        if (window.ethereum) {
+            window.ethereum.on('chainChanged', (chainId) => {
+                console.log('Chain changed to:', chainId);
+                updateStatus('Network changed, please reconnect...', 'warning');
+                // Refresh page to reset all connections
+                setTimeout(() => window.location.reload(), 2000);
+            });
+
+            window.ethereum.on('accountsChanged', (accounts) => {
+                console.log('Account changed to:', accounts[0]);
+                if (accounts.length === 0) {
+                    updateStatus('Wallet disconnected', 'error');
+                } else {
+                    updateStatus('Account changed, please reconnect...', 'warning');
+                    // Refresh page to reset all connections
+                    setTimeout(() => window.location.reload(), 2000);
+                }
+            });
+        }
     </script>
 </body>
 </html>
